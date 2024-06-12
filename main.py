@@ -11,6 +11,11 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Joseph's Pixel Art Editor")
         self.resize(1000,1000)
 
+        # custom mouse cursor
+        # pixelCursor = QPixmap("pixel-cursor-arrow-png")
+        # self.scaled_pixelCursor = pixelCursor.scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+        # create pixel editor object
         self.editor = PixelArtEditor(24,24)
 
         # add canvas in a frame to main window 
@@ -30,6 +35,17 @@ class MainWindow(QMainWindow):
         self.scroll_area.setWidget(self.central_widget)
         self.scroll_area.setWidgetResizable(True)
         self.setCentralWidget(self.scroll_area)
+
+        # change cursor icon
+    # def enterEvent(self, event):
+    #     # Change the cursor when the mouse enters the view
+    #     self.setCursor(QCursor(self.scaled_pixelCursor))
+    #     super().enterEvent(event)
+
+    # def leaveEvent(self, event):
+    #     # Restore the cursor when the mouse leaves the view
+    #     self.unsetCursor()
+    #     super().leaveEvent(event)
 
 
 
