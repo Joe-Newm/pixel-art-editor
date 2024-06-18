@@ -9,7 +9,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Joseph's Pixel Art Editor")
-        self.resize(1400,1000)
+        self.resize(1200,800)
 
         # custom mouse cursor
         # pixelCursor = QPixmap("pixel-cursor-arrow-png")
@@ -32,12 +32,21 @@ class MainWindow(QMainWindow):
         self.scroll_area.setWidget(self.wrapper_widget)
         self.scroll_area.setWidgetResizable(True)
         self.setCentralWidget(self.scroll_area)
+        
 
         # tool bar
         self.toolbar = self.addToolBar("Tools")
         self.toolbar.setOrientation(Qt.Vertical)
         self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
         self.add_color_buttons()
+        self.scrollToCenter()
+        self.add_export_button()
+        self.add_clear_button()
+
+    def scrollToCenter(self):
+        # Center the scroll area on the editor
+        self.scroll_area.horizontalScrollBar().setValue((self.wrapper_widget.width() - self.size().width() + 150) // 2)
+        self.scroll_area.verticalScrollBar().setValue((self.wrapper_widget.height() - self.size().height()) // 2)
         
     def add_color_buttons(self):
         colors = [QColor("black"),QColor("white"),QColor("gray"), QColor("red"), QColor("green"), QColor("blue"), QColor("yellow"), QColor("purple")]
@@ -57,6 +66,16 @@ class MainWindow(QMainWindow):
                 i = 0
                 j += 1
         self.toolbar.addWidget(containerWidget)
+    
+    def add_export_button(self):
+        btn = QPushButton("export")
+        btn.clicked.connect(self.editor.open_save_dialog)
+        self.toolbar.addWidget(btn)
+
+    def add_clear_button(self):
+        btn = QPushButton("clear")
+        btn.clicked.connect(self.editor.clear_canvas)
+        self.toolbar.addWidget(btn)
 
     def setColor(self, color):
         self.editor.current_color = color
