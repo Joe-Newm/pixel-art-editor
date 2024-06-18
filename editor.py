@@ -40,7 +40,7 @@ class PixelArtEditor(QGraphicsView):
         super().mouseMoveEvent(event)
 
     def create_checkerboard_pattern(self, width, height):
-        size = 10  # Size of the checker squares
+        size = 4
         pixmap = QPixmap(width, height)
         with QPainter(pixmap) as painter:
             color1 = QColor(255, 255, 255)

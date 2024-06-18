@@ -25,7 +25,7 @@ class MainWindow(QMainWindow):
         self.wrapper_layout.addWidget(self.editor, 0, Qt.AlignCenter)
         self.wrapper_layout.addStretch(1)
         self.wrapper_widget.setLayout(self.wrapper_layout)
-        self.wrapper_widget.setFixedSize(self.editor.width + 1500, self.editor.height + 1500)  # Large border
+        self.wrapper_widget.setFixedSize(self.editor.width + 2500, self.editor.height + 2500)  # Large border
 
         # functionality for being able to scroll -not implemented yet
         self.scroll_area = QScrollArea()
