@@ -26,8 +26,6 @@ class PixelArtEditor(QGraphicsView):
         self.pixmap_item = QGraphicsPixmapItem(QPixmap.fromImage(self.image))
         self.scene.addItem(self.pixmap_item)
 
-        
-
         # add scale
         self.scale(self.scaleNum, self.scaleNum)
 
