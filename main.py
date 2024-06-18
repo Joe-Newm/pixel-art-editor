@@ -18,23 +18,18 @@ class MainWindow(QMainWindow):
         # create pixel editor object
         self.editor = PixelArtEditor(24,24)
 
-        # add canvas in a frame to main window 
-        self.frame = QFrame()
-        self.frame_layout = QVBoxLayout()
-        self.frame_layout.addWidget(self.editor)
-        self.frame_layout.setContentsMargins(0, 0, 0, 0) 
-        self.frame.setLayout(self.frame_layout)
-        
-
-        self.central_widget = QWidget()
-        self.central_layout = QVBoxLayout()
-        self.central_layout.addWidget(self.frame)
-        self.central_layout.setContentsMargins(0, 0, 0, 0)
-        self.central_widget.setLayout(self.central_layout)
+        # wrapper widget with border that allows for scrolling around the canvas
+        self.wrapper_widget = QWidget()
+        self.wrapper_layout = QVBoxLayout()
+        self.wrapper_layout.addStretch(1)
+        self.wrapper_layout.addWidget(self.editor, 0, Qt.AlignCenter)
+        self.wrapper_layout.addStretch(1)
+        self.wrapper_widget.setLayout(self.wrapper_layout)
+        self.wrapper_widget.setFixedSize(self.editor.width + 1500, self.editor.height + 1500)  # Large border
 
         # functionality for being able to scroll -not implemented yet
         self.scroll_area = QScrollArea()
-        self.scroll_area.setWidget(self.central_widget)
+        self.scroll_area.setWidget(self.wrapper_widget)
         self.scroll_area.setWidgetResizable(True)
         self.setCentralWidget(self.scroll_area)
 
@@ -54,9 +49,7 @@ class MainWindow(QMainWindow):
             btn = QPushButton()
             btn.setStyleSheet(f"background-color: {color.name()}; border: 2px solid black")
             btn.setFixedSize(20,20)
-            btn.clicked.connect(lambda _, col=color: self.set_color(col))
-
-            
+            btn.clicked.connect(lambda _, col=color: self.setColor(col))
             grid.addWidget(btn, j, i)
             containerWidget.setLayout(grid)
             i+=1
@@ -65,8 +58,8 @@ class MainWindow(QMainWindow):
                 j += 1
         self.toolbar.addWidget(containerWidget)
 
-
-        
+    def setColor(self, color):
+        self.editor.current_color = color
 
         # change cursor icon
     # def enterEvent(self, event):

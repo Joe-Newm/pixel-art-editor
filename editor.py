@@ -38,7 +38,7 @@ class PixelArtEditor(QGraphicsView):
                 self.setPixel(event)
         super().mousePressEvent(event)
 
-    def mouseMoveEvent(self, event: QMouseEvent):
+    def mouseMoveEvent(self, event):
         if event.buttons() & Qt.LeftButton:
                 self.setPixel(event)
         super().mouseMoveEvent(event)
