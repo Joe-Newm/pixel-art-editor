@@ -12,6 +12,7 @@ class PixelArtEditor(QGraphicsView):
         self.scene = QGraphicsScene(self)
         self.setScene(self.scene)
         self.image = QImage(width, height, QImage.Format_ARGB32)
+        self.current_color = QColor(0, 0, 0)
 
         # create checker pattern on canvas
         for y in range(height):
@@ -23,11 +24,32 @@ class PixelArtEditor(QGraphicsView):
                     color = QColor(200, 200, 200)
                 self.image.setPixelColor(x, y, color)
 
-        self.pixelMap = QGraphicsPixmapItem(QPixmap.fromImage(self.image))
-        self.scene.addItem(self.pixelMap)
+        self.pixmap_item = QGraphicsPixmapItem(QPixmap.fromImage(self.image))
+        self.scene.addItem(self.pixmap_item)
+
+        self.setRenderHint(QPainter.Antialiasing, False)
+        self.setRenderHint(QPainter.SmoothPixmapTransform, False)
 
         # add scale
         self.scale(self.scaleNum, self.scaleNum)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+                self.setPixel(event)
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event: QMouseEvent):
+        if event.buttons() & Qt.LeftButton:
+                self.setPixel(event)
+        super().mouseMoveEvent(event)
+
+    def setPixel(self, event):
+        print('hi')
+        pos = self.mapToScene(event.pos())
+        x = int(pos.x())
+        y = int(pos.y())
+        self.image.setPixelColor(x, y, self.current_color)
+        self.pixmap_item.setPixmap(QPixmap.fromImage(self.image))
         
         
 

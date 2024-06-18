@@ -9,7 +9,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Joseph's Pixel Art Editor")
-        self.resize(1000,1000)
+        self.resize(1400,1000)
 
         # custom mouse cursor
         # pixelCursor = QPixmap("pixel-cursor-arrow-png")
@@ -24,6 +24,7 @@ class MainWindow(QMainWindow):
         self.frame_layout.addWidget(self.editor)
         self.frame_layout.setContentsMargins(0, 0, 0, 0) 
         self.frame.setLayout(self.frame_layout)
+        
 
         self.central_widget = QWidget()
         self.central_layout = QVBoxLayout()
@@ -31,10 +32,41 @@ class MainWindow(QMainWindow):
         self.central_layout.setContentsMargins(0, 0, 0, 0)
         self.central_widget.setLayout(self.central_layout)
 
+        # functionality for being able to scroll -not implemented yet
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidget(self.central_widget)
         self.scroll_area.setWidgetResizable(True)
         self.setCentralWidget(self.scroll_area)
+
+        # tool bar
+        self.toolbar = self.addToolBar("Tools")
+        self.toolbar.setOrientation(Qt.Vertical)
+        self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
+        self.add_color_buttons()
+        
+    def add_color_buttons(self):
+        colors = [QColor("black"),QColor("white"),QColor("gray"), QColor("red"), QColor("green"), QColor("blue"), QColor("yellow"), QColor("purple")]
+        i = 0
+        j = 0
+        containerWidget = QWidget()
+        grid = QGridLayout()
+        for color in colors:
+            btn = QPushButton()
+            btn.setStyleSheet(f"background-color: {color.name()}; border: 2px solid black")
+            btn.setFixedSize(20,20)
+            btn.clicked.connect(lambda _, col=color: self.set_color(col))
+
+            
+            grid.addWidget(btn, j, i)
+            containerWidget.setLayout(grid)
+            i+=1
+            if i > 2:
+                i = 0
+                j += 1
+        self.toolbar.addWidget(containerWidget)
+
+
+        
 
         # change cursor icon
     # def enterEvent(self, event):
@@ -48,7 +80,7 @@ class MainWindow(QMainWindow):
     #     super().leaveEvent(event)
 
 
-
+    
 ###################### Main #####################
 
 app = QApplication(sys.argv)
