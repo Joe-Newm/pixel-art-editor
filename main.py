@@ -16,7 +16,10 @@ class MainWindow(QMainWindow):
         # self.scaled_pixelCursor = pixelCursor.scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
         # create pixel editor object
-        self.editor = PixelArtEditor(24,24)
+        height = 24
+        width = 24
+        self.editor = PixelArtEditor(width,height)
+        self.editor.setFixedSize(height*width, height*width)
 
         # wrapper widget with border that allows for scrolling around the canvas
         self.wrapper_widget = QWidget()
@@ -25,7 +28,7 @@ class MainWindow(QMainWindow):
         self.wrapper_layout.addWidget(self.editor, 0, Qt.AlignCenter)
         self.wrapper_layout.addStretch(1)
         self.wrapper_widget.setLayout(self.wrapper_layout)
-        self.wrapper_widget.setFixedSize(self.editor.width + 2500, self.editor.height + 2500)  # Large border
+        self.wrapper_widget.setFixedSize(height*width*5, height*width*5)
 
         # functionality for being able to scroll -not implemented yet
         self.scroll_area = QScrollArea()
@@ -33,7 +36,6 @@ class MainWindow(QMainWindow):
         self.scroll_area.setWidgetResizable(True)
         self.setCentralWidget(self.scroll_area)
         
-
         # tool bar
         self.toolbar = self.addToolBar("Tools")
         self.toolbar.setOrientation(Qt.Vertical)
