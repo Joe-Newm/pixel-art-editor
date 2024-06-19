@@ -32,6 +32,7 @@ class MainWindow(QMainWindow):
         self.addToolBar(Qt.LeftToolBarArea, self.toolbarLeft)
         self.add_color_buttons()
         self.toolbarLeft.setMovable(False)
+        
 
         # right tool bar for tools
         self.toolbarRight = self.addToolBar("Tools")

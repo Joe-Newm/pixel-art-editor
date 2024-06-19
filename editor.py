@@ -42,8 +42,9 @@ class PixelArtEditor(QGraphicsView):
         if event.modifiers() == Qt.AltModifier:
             zoom_in_factor = 1.1
             zoom_out_factor = 1 / zoom_in_factor
-            delta = event.angleDelta().x()
-            if delta > 0:
+            delta_x = event.angleDelta().x()
+            delta_y = event.angleDelta().y()
+            if delta_x > 0 or delta_y > 0:
                 self.scale(zoom_in_factor, zoom_in_factor)
             else:
                 self.scale(zoom_out_factor, zoom_out_factor)  
