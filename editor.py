@@ -8,9 +8,9 @@ class PixelArtEditor(QGraphicsView):
         super().__init__()
         self.width = width
         self.height = height
-        self.scaleNum = 20
-        self.scene = QGraphicsScene(self)
+        self.scene = QGraphicsScene()
         self.setScene(self.scene)
+        self.setSceneRect(0, 0, width, height)
         self.drawn_pixels = set()
         self.image = QImage(width, height, QImage.Format_ARGB32)
         self.current_color = QColor(0, 0, 0)
@@ -20,14 +20,28 @@ class PixelArtEditor(QGraphicsView):
         self.background_item = QGraphicsPixmapItem(self.backgroundPixmap)
         self.scene.addItem(self.background_item)
 
-
         # pixmap for what i draw on the canvas
         self.image.fill(Qt.transparent)
         self.pixmap_item = QGraphicsPixmapItem(QPixmap.fromImage(self.image))
         self.scene.addItem(self.pixmap_item)
 
         # add scale
-        self.scale(self.scaleNum, self.scaleNum)
+        self.setTransformationAnchor(QGraphicsView.NoAnchor)
+        self.setResizeAnchor(QGraphicsView.NoAnchor)
+        self.scale(10,10)
+        
+    def wheelEvent(self, event):
+        if event.modifiers() == Qt.AltModifier:
+            zoom_in_factor = 1.1
+            zoom_out_factor = 1 / zoom_in_factor
+            delta = event.angleDelta().x()
+            if delta > 0:
+                self.scale(zoom_in_factor, zoom_in_factor)
+            else:
+                self.scale(zoom_out_factor, zoom_out_factor)  
+        else:
+            super().wheelEvent(event)
+        
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:

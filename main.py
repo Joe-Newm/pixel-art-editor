@@ -16,40 +16,31 @@ class MainWindow(QMainWindow):
         # self.scaled_pixelCursor = pixelCursor.scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
         # create pixel editor object
-        height = 24
-        width = 24
+        height = 64
+        width = 64
         self.editor = PixelArtEditor(width,height)
-        self.editor.setFixedSize(height*width, height*width)
-
-        # wrapper widget with border that allows for scrolling around the canvas
-        self.wrapper_widget = QWidget()
-        self.wrapper_layout = QVBoxLayout()
-        self.wrapper_layout.addStretch(1)
-        self.wrapper_layout.addWidget(self.editor, 0, Qt.AlignCenter)
-        self.wrapper_layout.addStretch(1)
-        self.wrapper_widget.setLayout(self.wrapper_layout)
-        self.wrapper_widget.setFixedSize(height*width*5, height*width*5)
-
-        # functionality for being able to scroll -not implemented yet
+        
+        # functionality for being able to scroll
         self.scroll_area = QScrollArea()
-        self.scroll_area.setWidget(self.wrapper_widget)
+        self.scroll_area.setWidget(self.editor)
         self.scroll_area.setWidgetResizable(True)
         self.setCentralWidget(self.scroll_area)
         
-        # tool bar
-        self.toolbar = self.addToolBar("Tools")
-        self.toolbar.setOrientation(Qt.Vertical)
-        self.addToolBar(Qt.LeftToolBarArea, self.toolbar)
+        # left tool bar for colors
+        self.toolbarLeft = self.addToolBar("Colors")
+        self.toolbarLeft.setOrientation(Qt.Vertical)
+        self.addToolBar(Qt.LeftToolBarArea, self.toolbarLeft)
         self.add_color_buttons()
-        self.scrollToCenter()
+        self.toolbarLeft.setMovable(False)
+
+        # right tool bar for tools
+        self.toolbarRight = self.addToolBar("Tools")
+        self.toolbarRight.setOrientation(Qt.Vertical)
+        self.addToolBar(Qt.RightToolBarArea, self.toolbarRight)
+        
         self.add_export_button()
         self.add_clear_button()
 
-    def scrollToCenter(self):
-        # Center the scroll area on the editor
-        self.scroll_area.horizontalScrollBar().setValue((self.wrapper_widget.width() - self.size().width() + 150) // 2)
-        self.scroll_area.verticalScrollBar().setValue((self.wrapper_widget.height() - self.size().height()) // 2)
-        
     def add_color_buttons(self):
         colors = [QColor("black"),QColor("white"),QColor("gray"), QColor("red"), QColor("green"), QColor("blue"), QColor("yellow"), QColor("purple")]
         i = 0
@@ -67,17 +58,17 @@ class MainWindow(QMainWindow):
             if i > 2:
                 i = 0
                 j += 1
-        self.toolbar.addWidget(containerWidget)
+        self.toolbarLeft.addWidget(containerWidget)
     
     def add_export_button(self):
         btn = QPushButton("export")
         btn.clicked.connect(self.editor.open_save_dialog)
-        self.toolbar.addWidget(btn)
+        self.toolbarLeft.addWidget(btn)
 
     def add_clear_button(self):
         btn = QPushButton("clear")
         btn.clicked.connect(self.editor.clear_canvas)
-        self.toolbar.addWidget(btn)
+        self.toolbarLeft.addWidget(btn)
 
     def setColor(self, color):
         self.editor.current_color = color
