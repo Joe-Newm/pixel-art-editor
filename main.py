@@ -37,9 +37,13 @@ class MainWindow(QMainWindow):
         self.toolbarRight = self.addToolBar("Tools")
         self.toolbarRight.setOrientation(Qt.Vertical)
         self.addToolBar(Qt.RightToolBarArea, self.toolbarRight)
+        self.toolbarRight.setMovable(False)
         
+        # add buttons to both tool bars
         self.add_export_button()
         self.add_clear_button()
+        self.add_brush_tool()
+        self.add_eraser_tool()
 
     def add_color_buttons(self):
         colors = [QColor("black"),QColor("white"),QColor("gray"), QColor("red"), QColor("green"), QColor("blue"), QColor("yellow"), QColor("purple")]
@@ -61,14 +65,26 @@ class MainWindow(QMainWindow):
         self.toolbarLeft.addWidget(containerWidget)
     
     def add_export_button(self):
-        btn = QPushButton("export")
+        btn = QPushButton("Export")
         btn.clicked.connect(self.editor.open_save_dialog)
         self.toolbarLeft.addWidget(btn)
 
     def add_clear_button(self):
-        btn = QPushButton("clear")
+        btn = QPushButton("Clear")
         btn.clicked.connect(self.editor.clear_canvas)
         self.toolbarLeft.addWidget(btn)
+
+    def add_brush_tool(self):
+        btn = QPushButton("B")
+        btn.setFixedSize(40,40)
+        btn.clicked.connect(self.editor.draw_switch)
+        self.toolbarRight.addWidget(btn)
+
+    def add_eraser_tool(self):
+        btn = QPushButton("E")
+        btn.setFixedSize(40,40)
+        btn.clicked.connect(self.editor.eraser_switch)
+        self.toolbarRight.addWidget(btn)
 
     def setColor(self, color):
         self.editor.current_color = color

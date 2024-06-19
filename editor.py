@@ -15,6 +15,14 @@ class PixelArtEditor(QGraphicsView):
         self.image = QImage(width, height, QImage.Format_ARGB32)
         self.current_color = QColor(0, 0, 0)
 
+        # keep track of which tool is being used
+        self.states = ["draw_mode_on", "eraser_mode_on"]
+        self.state = self.states[0]
+
+        #drawing modes
+        self.draw_mode = True
+        self.eraser_mode = False
+
         # create checkerboard pattern pixmap
         self.backgroundPixmap = self.create_checkerboard_pattern(width, height)
         self.background_item = QGraphicsPixmapItem(self.backgroundPixmap)
@@ -72,8 +80,16 @@ class PixelArtEditor(QGraphicsView):
         pos = self.mapToScene(event.pos())
         x = int(pos.x())
         y = int(pos.y())
-        self.image.setPixelColor(x, y, self.current_color)
-        self.drawn_pixels.add((x, y))
+
+        if self.state == "draw_mode_on":
+            self.image.setPixelColor(x, y, self.current_color)
+            self.drawn_pixels.add((x, y))
+
+        elif self.state == "eraser_mode_on":
+            self.image.setPixelColor(x,y,QColor(0,0,0,0))
+            if (x,y) in self.drawn_pixels:
+                self.drawn_pixels.remove((x, y))
+
         self.pixmap_item.setPixmap(QPixmap.fromImage(self.image))
 
     def export_canvas(self, file_path, scale_factor=20):
@@ -91,6 +107,12 @@ class PixelArtEditor(QGraphicsView):
         file_path, _ = file_dialog.getSaveFileName(self, "Save Image", "untitled.png", "PNG Files (*.png);;All Files (*)")
         if file_path:
             self.export_canvas(file_path)
+
+    def eraser_switch(self):
+        self.state = self.states[1]
+
+    def draw_switch(self):
+        self.state = self.states[0]
         
 
 
