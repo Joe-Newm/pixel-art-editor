@@ -1,7 +1,7 @@
 import sys
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QEvent
 
 class PixelArtEditor(QGraphicsView):
     def __init__(self, width, height):
@@ -33,6 +33,8 @@ class PixelArtEditor(QGraphicsView):
         self.setTransformationAnchor(QGraphicsView.NoAnchor)
         self.setResizeAnchor(QGraphicsView.NoAnchor)
         self.scale(10,10)
+
+        self.grabGesture(Qt.PinchGesture)
         
     def wheelEvent(self, event):
         if event.modifiers() == Qt.AltModifier:
@@ -46,7 +48,17 @@ class PixelArtEditor(QGraphicsView):
                 self.scale(zoom_out_factor, zoom_out_factor)  
         else:
             super().wheelEvent(event)
-        
+
+    # adds pinch gesture for zooming in and out
+    def gestureEvent(self, event):
+        if event.gesture(Qt.PinchGesture):
+            self.pinchTriggered(event.gesture(Qt.PinchGesture))
+        return super().event(event)
+    # determines scale for zooming with pinch
+    def pinchTriggered(self, gesture):
+        if gesture.changeFlags() & QPinchGesture.ScaleFactorChanged:
+            factor = gesture.scaleFactor()
+            self.scale(factor, factor)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
@@ -110,6 +122,11 @@ class PixelArtEditor(QGraphicsView):
 
     def draw_switch(self):
         self.state = self.states[0]
+
+    def event(self, event):
+        if event.type() == QEvent.Gesture:
+            return self.gestureEvent(event)
+        return super().event(event)
         
 
 

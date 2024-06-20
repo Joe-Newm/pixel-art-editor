@@ -1,7 +1,7 @@
 import sys
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QEvent
 
 from editor import *
 from dialog import *
@@ -39,16 +39,22 @@ class MainWindow(QMainWindow):
         self.add_brush_tool()
         self.add_eraser_tool()
         self.add_color_buttons()
-        self.add_export_button()
         self.add_clear_button()
+        self.add_menu_buttons()
 
         # add menu bar with file > new button
-        menu = self.menuBar()
-        file_menu = menu.addMenu("&File")
-        new_action = file_menu.addAction("New")
-        new_action.triggered.connect(self.show_dialog)
-        edit_menu = menu.addMenu("&Edit")
-        edit_menu.addAction("Undo")
+    def add_menu_buttons(self):
+        self.menu = self.menuBar()
+        self.file_menu = self.menu.addMenu("&File")
+
+        self.new_action = self.file_menu.addAction("New")
+        self.new_action.triggered.connect(self.show_dialog)
+
+        self.export_action = self.file_menu.addAction("Export")
+        self.export_action.triggered.connect(self.editor.open_save_dialog)
+
+        self.edit_menu = self.menu.addMenu("&Edit")
+        self.edit_menu.addAction("Undo")
 
 
     def add_color_buttons(self):
@@ -96,8 +102,8 @@ class MainWindow(QMainWindow):
         self.editor.current_color = color
 
     def update_buttons(self):
-        self.export_btn.clicked.disconnect()
-        self.export_btn.clicked.connect(self.editor.open_save_dialog)
+        self.export_action.triggered.disconnect()
+        self.export_action.triggered.connect(self.editor.open_save_dialog)
 
         self.clear_btn.clicked.disconnect()
         self.clear_btn.clicked.connect(self.editor.clear_canvas)
@@ -118,6 +124,7 @@ class MainWindow(QMainWindow):
             self.dialog_counter += 1
             if self.dialog_counter > 1:
                 self.update_buttons()
+
 
         # change cursor icon
     # def enterEvent(self, event):
