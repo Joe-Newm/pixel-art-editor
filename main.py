@@ -15,10 +15,6 @@ class MainWindow(QMainWindow):
         # custom mouse cursor
         # pixelCursor = QPixmap("pixel-cursor-arrow-png")
         # self.scaled_pixelCursor = pixelCursor.scaled(24, 24, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-
-        # create pixel editor object
-        height = 64
-        width = 64
         
         # functionality for being able to scroll
         self.scroll_area = QScrollArea()
