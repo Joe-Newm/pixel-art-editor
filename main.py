@@ -46,6 +46,14 @@ class MainWindow(QMainWindow):
         self.add_brush_tool()
         self.add_eraser_tool()
 
+        # add menu bar
+        menu = self.menuBar()
+
+        file_menu = menu.addMenu("&File")
+        file_menu.addAction("New")
+        edit_menu = menu.addMenu("&Edit")
+        edit_menu.addAction("Undo")
+
     def add_color_buttons(self):
         colors = [QColor("black"),QColor("white"),QColor("gray"), QColor("red"), QColor("green"), QColor("blue"), QColor("yellow"), QColor("purple")]
         i = 0

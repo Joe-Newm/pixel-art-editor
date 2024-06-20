@@ -10,18 +10,14 @@ class PixelArtEditor(QGraphicsView):
         self.height = height
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
-        self.setSceneRect(0, 0, width, height)
+        self.setSceneRect(-50, -50, width +100, height+100)
         self.drawn_pixels = set()
         self.image = QImage(width, height, QImage.Format_ARGB32)
         self.current_color = QColor(0, 0, 0)
 
         # keep track of which tool is being used
-        self.states = ["draw_mode_on", "eraser_mode_on"]
+        self.states = ["draw_mode_on", "eraser_mode_on", "fill_mode_on"]
         self.state = self.states[0]
-
-        #drawing modes
-        self.draw_mode = True
-        self.eraser_mode = False
 
         # create checkerboard pattern pixmap
         self.backgroundPixmap = self.create_checkerboard_pattern(width, height)
