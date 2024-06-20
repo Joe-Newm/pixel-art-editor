@@ -4,6 +4,7 @@ from PySide6.QtGui import *
 from PySide6.QtCore import Qt
 
 from editor import *
+from dialog import *
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -18,11 +19,10 @@ class MainWindow(QMainWindow):
         # create pixel editor object
         height = 64
         width = 64
-        self.editor = PixelArtEditor(width,height)
         
         # functionality for being able to scroll
         self.scroll_area = QScrollArea()
-        self.scroll_area.setWidget(self.editor)
+        # self.scroll_area.setWidget(self.editor)
         self.scroll_area.setWidgetResizable(True)
         self.setCentralWidget(self.scroll_area)
         
@@ -30,7 +30,6 @@ class MainWindow(QMainWindow):
         self.toolbarLeft = self.addToolBar("Colors")
         self.toolbarLeft.setOrientation(Qt.Vertical)
         self.addToolBar(Qt.LeftToolBarArea, self.toolbarLeft)
-        self.add_color_buttons()
         self.toolbarLeft.setMovable(False)
         
 
@@ -40,19 +39,22 @@ class MainWindow(QMainWindow):
         self.addToolBar(Qt.RightToolBarArea, self.toolbarRight)
         self.toolbarRight.setMovable(False)
         
-        # add buttons to both tool bars
-        self.add_export_button()
-        self.add_clear_button()
+        # add editor and then add buttons to both tool bars
+        self.show_dialog()
         self.add_brush_tool()
         self.add_eraser_tool()
+        self.add_color_buttons()
+        self.add_export_button()
+        self.add_clear_button()
 
-        # add menu bar
+        # add menu bar with file > new button
         menu = self.menuBar()
-
         file_menu = menu.addMenu("&File")
-        file_menu.addAction("New")
+        new_action = file_menu.addAction("New")
+        new_action.triggered.connect(self.show_dialog)
         edit_menu = menu.addMenu("&Edit")
         edit_menu.addAction("Undo")
+
 
     def add_color_buttons(self):
         colors = [QColor("black"),QColor("white"),QColor("gray"), QColor("red"), QColor("green"), QColor("blue"), QColor("yellow"), QColor("purple")]
@@ -97,6 +99,14 @@ class MainWindow(QMainWindow):
 
     def setColor(self, color):
         self.editor.current_color = color
+
+    def show_dialog(self):
+        dialog = InputDialog()
+        if dialog.exec():
+            input1, input2 = dialog.getInputs()
+            self.editor = PixelArtEditor(int(input1), int(input2))
+            self.scroll_area.setWidget(self.editor)
+            self.setCentralWidget(self.scroll_area)
 
         # change cursor icon
     # def enterEvent(self, event):
