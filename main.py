@@ -11,6 +11,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Joseph's Pixel Art Editor")
         self.resize(1200,800)
+        self.dialog_counter = 0
 
         # custom mouse cursor
         # pixelCursor = QPixmap("pixel-cursor-arrow-png")
@@ -18,7 +19,6 @@ class MainWindow(QMainWindow):
         
         # functionality for being able to scroll
         self.scroll_area = QScrollArea()
-        # self.scroll_area.setWidget(self.editor)
         self.scroll_area.setWidgetResizable(True)
         self.setCentralWidget(self.scroll_area)
         
@@ -28,7 +28,6 @@ class MainWindow(QMainWindow):
         self.addToolBar(Qt.LeftToolBarArea, self.toolbarLeft)
         self.toolbarLeft.setMovable(False)
         
-
         # right tool bar for tools
         self.toolbarRight = self.addToolBar("Tools")
         self.toolbarRight.setOrientation(Qt.Vertical)
@@ -72,29 +71,42 @@ class MainWindow(QMainWindow):
         self.toolbarLeft.addWidget(containerWidget)
     
     def add_export_button(self):
-        btn = QPushButton("Export")
-        btn.clicked.connect(self.editor.open_save_dialog)
-        self.toolbarLeft.addWidget(btn)
+        self.export_btn = QPushButton("Export")
+        self.export_btn.clicked.connect(self.editor.open_save_dialog)
+        self.toolbarLeft.addWidget(self.export_btn)
 
     def add_clear_button(self):
-        btn = QPushButton("Clear")
-        btn.clicked.connect(self.editor.clear_canvas)
-        self.toolbarLeft.addWidget(btn)
+        self.clear_btn = QPushButton("Clear")
+        self.clear_btn.clicked.connect(self.editor.clear_canvas)
+        self.toolbarLeft.addWidget(self.clear_btn)
 
     def add_brush_tool(self):
-        btn = QPushButton("B")
-        btn.setFixedSize(40,40)
-        btn.clicked.connect(self.editor.draw_switch)
-        self.toolbarRight.addWidget(btn)
+        self.brush_btn = QPushButton("B")
+        self.brush_btn.setFixedSize(40,40)
+        self.brush_btn.clicked.connect(self.editor.draw_switch)
+        self.toolbarRight.addWidget(self.brush_btn)
 
     def add_eraser_tool(self):
-        btn = QPushButton("E")
-        btn.setFixedSize(40,40)
-        btn.clicked.connect(self.editor.eraser_switch)
-        self.toolbarRight.addWidget(btn)
+        self.eraser_btn = QPushButton("E")
+        self.eraser_btn.setFixedSize(40,40)
+        self.eraser_btn.clicked.connect(self.editor.eraser_switch)
+        self.toolbarRight.addWidget(self.eraser_btn)
 
     def setColor(self, color):
         self.editor.current_color = color
+
+    def update_buttons(self):
+        self.export_btn.clicked.disconnect()
+        self.export_btn.clicked.connect(self.editor.open_save_dialog)
+
+        self.clear_btn.clicked.disconnect()
+        self.clear_btn.clicked.connect(self.editor.clear_canvas)
+        
+        self.brush_btn.clicked.disconnect()
+        self.brush_btn.clicked.connect(self.editor.draw_switch)
+
+        self.eraser_btn.clicked.disconnect()
+        self.eraser_btn.clicked.connect(self.editor.eraser_switch)
 
     def show_dialog(self):
         dialog = InputDialog()
@@ -103,6 +115,9 @@ class MainWindow(QMainWindow):
             self.editor = PixelArtEditor(int(input1), int(input2))
             self.scroll_area.setWidget(self.editor)
             self.setCentralWidget(self.scroll_area)
+            self.dialog_counter += 1
+            if self.dialog_counter > 1:
+                self.update_buttons()
 
         # change cursor icon
     # def enterEvent(self, event):
