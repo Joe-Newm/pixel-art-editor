@@ -113,7 +113,7 @@ class PixelArtEditor(QGraphicsView):
         
     def open_save_dialog(self):
         file_dialog = QFileDialog(self)
-        file_path, _ = file_dialog.getSaveFileName(self, "Save Image", "untitled.png", "PNG Files (*.png);;All Files (*)")
+        file_path, _ = file_dialog.getSaveFileName(self, "Save Image", "untitled", "PNG Files (*.png);;All Files (*)")
         if file_path:
             self.export_canvas(file_path)
 
