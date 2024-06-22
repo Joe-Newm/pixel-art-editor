@@ -41,6 +41,7 @@ class MainWindow(QMainWindow):
         self.add_color_buttons()
         self.add_clear_button()
         self.add_menu_buttons()
+        self.add_print_button()
 
         # add menu bar with file > new button
     def add_menu_buttons(self):
@@ -86,6 +87,11 @@ class MainWindow(QMainWindow):
         self.clear_btn.clicked.connect(self.editor.clear_canvas)
         self.toolbarLeft.addWidget(self.clear_btn)
 
+    def add_print_button(self):
+        self.print_btn = QPushButton("Print")
+        self.print_btn.clicked.connect(self.editor.print)
+        self.toolbarLeft.addWidget(self.print_btn)
+
     def add_brush_tool(self):
         self.brush_btn = QPushButton("B")
         self.brush_btn.setFixedSize(40,40)
@@ -114,6 +120,7 @@ class MainWindow(QMainWindow):
         self.eraser_btn.clicked.disconnect()
         self.eraser_btn.clicked.connect(self.editor.eraser_switch)
 
+# shows dialog for creating a new canvas
     def show_dialog(self):
         dialog = InputDialog()
         if dialog.exec():

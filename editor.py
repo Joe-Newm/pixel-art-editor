@@ -1,7 +1,11 @@
 import sys
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
-from PySide6.QtCore import Qt, QEvent
+from PySide6.QtCore import Qt, QEvent, QBuffer
+from PIL import Image, ImageFilter
+import usb1
+from escpos.printer import Dummy
+import io
 
 class PixelArtEditor(QGraphicsView):
     def __init__(self, width, height):
@@ -122,6 +126,61 @@ class PixelArtEditor(QGraphicsView):
 
     def draw_switch(self):
         self.state = self.states[0]
+
+
+    # for printing on the receipt printer
+    def print(self):
+        # Vendor ID and Product ID from your lsusb output
+        VENDOR_ID = 0x0416
+        PRODUCT_ID = 0x5011
+
+        context = usb1.USBContext()
+        handle = None
+
+        for device in context.getDeviceList(skip_on_error=True):
+            if device.getVendorID() == VENDOR_ID and device.getProductID() == PRODUCT_ID:
+                handle = device.open()
+                print(f"Device found: {device}")
+                break
+
+        if handle:
+            # The interface number found in the lsusb output
+            interface_number = 0 
+            handle.claimInterface(interface_number)
+            
+            # generate commands
+            dummy_printer = Dummy()
+
+            #scale image
+            printer_width = 576
+            scaled_image = self.image.scaledToWidth(printer_width, Qt.SmoothTransformation)
+
+            # change qimage to PIL image
+            buffer = QBuffer()
+            buffer.open(QBuffer.ReadWrite)
+            scaled_image.save(buffer, "PNG")
+            pil_image = Image.open(io.BytesIO(buffer.data()))
+
+            # sharpen the image 
+            pil_image = pil_image.filter(ImageFilter.SHARPEN) 
+            
+            # Print the image
+            dummy_printer.image(pil_image)
+            dummy_printer.text("## Thanks for using Joseph's pixel editor. ##\n")
+            dummy_printer.cut()
+
+            # Get raw data
+            escpos_data = dummy_printer.output
+
+            # Perform transfer to endpoint
+            endpoint_address = 0x03  # Endpoint
+            handle.bulkWrite(endpoint_address, escpos_data)
+            print("Printed successfully.")
+            
+            # Release the interface
+            handle.releaseInterface(interface_number)
+        else:
+            print("No USB device found.")
 
     def event(self, event):
         if event.type() == QEvent.Gesture:
