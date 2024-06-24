@@ -1,7 +1,7 @@
 import sys
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
-from PySide6.QtCore import Qt, QEvent, QBuffer
+from PySide6.QtCore import Qt, QEvent, QBuffer, QFileInfo
 from PIL import Image, ImageFilter
 import usb1
 from escpos.printer import Dummy
@@ -18,6 +18,7 @@ class PixelArtEditor(QGraphicsView):
         self.drawn_pixels = set()
         self.image = QImage(width, height, QImage.Format_ARGB32)
         self.current_color = QColor(0, 0, 0)
+        self.last_directory = ""
 
         # keep track of which tool is being used
         self.states = ["draw_mode_on", "eraser_mode_on", "fill_mode_on"]
@@ -94,20 +95,62 @@ class PixelArtEditor(QGraphicsView):
         x = int(pos.x())
         y = int(pos.y())
 
+        # brush tool
         if self.state == "draw_mode_on":
             self.image.setPixelColor(x, y, self.current_color)
             self.drawn_pixels.add((x, y))
 
+        # eraser tool
         elif self.state == "eraser_mode_on":
             self.image.setPixelColor(x,y,QColor(0,0,0,0))
             if (x,y) in self.drawn_pixels:
                 self.drawn_pixels.remove((x, y))
 
+        # fill tool
+        elif self.state == "fill_mode_on":
+            self.flood_fill(x,y,self.current_color)
+
         self.pixmap_item.setPixmap(QPixmap.fromImage(self.image))
+
+    
+    def flood_fill(self, x, y, new_color):
+        target_color = self.image.pixelColor(x, y)
+        if target_color == new_color:
+            return
+
+        stack = [(x, y)]
+        while stack:
+            current_x, current_y = stack.pop()
+            if self.image.pixelColor(current_x, current_y) == target_color:
+                self.image.setPixelColor(current_x, current_y, new_color)
+                if current_x > 0:
+                    stack.append((current_x - 1, current_y))
+                if current_x < self.image.width() - 1:
+                    stack.append((current_x + 1, current_y))
+                if current_y > 0:
+                    stack.append((current_x, current_y - 1))
+                if current_y < self.image.height() - 1:
+                    stack.append((current_x, current_y + 1))
 
     def export_canvas(self, file_path, scale_factor=20):
         large_image = self.image.scaled(self.width * scale_factor, self.height * scale_factor, Qt.KeepAspectRatio, Qt.FastTransformation)
-        large_image.save(file_path, 'PNG')
+        if file_path.endswith(".png"):
+            large_image.save(file_path, 'PNG')
+        if file_path.endswith(".jpg") or file_path.endswith(".jpeg"):
+            # Create a new image with a white background
+            white_background = QImage(large_image.size(), QImage.Format_RGB32)
+            white_background.fill(Qt.white)
+            
+            # paint image on the white background
+            painter = QPainter(white_background)
+            painter.drawImage(0, 0, large_image)
+            painter.end()
+            
+            # Save image as JPEG
+            white_background.save(file_path, 'JPEG')
+            
+
+        
 
     def clear_canvas(self):
         self.image = QImage(self.width, self.height, QImage.Format_ARGB32)
@@ -117,8 +160,11 @@ class PixelArtEditor(QGraphicsView):
         
     def open_save_dialog(self):
         file_dialog = QFileDialog(self)
-        file_path, _ = file_dialog.getSaveFileName(self, "Save Image", "untitled", "PNG Files (*.png);;All Files (*)")
+        if self.last_directory != "":
+            file_dialog.setDirectory(self.last_directory)
+        file_path, _ = file_dialog.getSaveFileName(self, "Save Image", "untitled", "PNG Files (*.png);;JPEG Files (*.jpg *.jpeg);;All Files (*)")
         if file_path:
+            self.last_directory = QFileInfo(file_path).path()
             self.export_canvas(file_path)
 
     def eraser_switch(self):
@@ -126,6 +172,9 @@ class PixelArtEditor(QGraphicsView):
 
     def draw_switch(self):
         self.state = self.states[0]
+
+    def fill_switch(self):
+        self.state = self.states[2]
 
 
     # for printing on the receipt printer

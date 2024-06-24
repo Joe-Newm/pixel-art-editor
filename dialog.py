@@ -10,8 +10,8 @@ class InputDialog(QDialog):
 
         layout = QFormLayout()
 
-        self.input1 = QLineEdit("24")
-        self.input2 = QLineEdit("24")
+        self.input1 = QLineEdit("64")
+        self.input2 = QLineEdit("64")
 
         layout.addRow("Width: ", self.input1)
         layout.addRow("Height: ", self.input2)
