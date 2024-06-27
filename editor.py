@@ -112,7 +112,7 @@ class PixelArtEditor(QGraphicsView):
 
         self.pixmap_item.setPixmap(QPixmap.fromImage(self.image))
 
-    
+
     def flood_fill(self, x, y, new_color):
         target_color = self.image.pixelColor(x, y)
         if target_color == new_color:
@@ -167,15 +167,14 @@ class PixelArtEditor(QGraphicsView):
             self.last_directory = QFileInfo(file_path).path()
             self.export_canvas(file_path)
 
+    def draw_switch(self):
+        self.state = self.states[0]
+    
     def eraser_switch(self):
         self.state = self.states[1]
 
-    def draw_switch(self):
-        self.state = self.states[0]
-
     def fill_switch(self):
         self.state = self.states[2]
-
 
     # for printing on the receipt printer
     def print(self):

@@ -12,6 +12,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Joseph's Pixel Art Editor")
         self.resize(1200,800)
         self.dialog_counter = 0
+        self.tool_buttons = []
 
         # custom mouse cursor
         # pixelCursor = QPixmap("pixel-cursor-arrow-png")
@@ -108,9 +109,12 @@ class MainWindow(QMainWindow):
         icon = QIcon(fill_image)
         self.brush_btn = QPushButton()
         self.brush_btn.setIcon(icon)
+        self.brush_btn.setCheckable(True)
+        self.brush_btn.setChecked(True)
+        self.brush_btn.clicked.connect(lambda: self.activate_tool(self.brush_btn, self.editor.draw_switch))
         self.brush_btn.setFixedSize(40,40)
-        self.brush_btn.clicked.connect(self.editor.draw_switch)
         self.toolbarRight.addWidget(self.brush_btn)
+        self.tool_buttons.append(self.brush_btn)
 
     def add_eraser_tool(self):
         pixmap = QPixmap("icons/eraser.png")
@@ -119,9 +123,11 @@ class MainWindow(QMainWindow):
         icon = QIcon(fill_image)
         self.eraser_btn = QPushButton()
         self.eraser_btn.setIcon(icon)
+        self.eraser_btn.setCheckable(True)
+        self.eraser_btn.clicked.connect(lambda: self.activate_tool(self.eraser_btn, self.editor.eraser_switch))
         self.eraser_btn.setFixedSize(40,40)
-        self.eraser_btn.clicked.connect(self.editor.eraser_switch)
         self.toolbarRight.addWidget(self.eraser_btn)
+        self.tool_buttons.append(self.eraser_btn)
 
     def add_fill_tool(self):
         pixmap = QPixmap("icons/paint-bucket.png")
@@ -130,9 +136,11 @@ class MainWindow(QMainWindow):
         icon = QIcon(fill_image)
         self.fill_btn = QPushButton()
         self.fill_btn.setIcon(icon)
+        self.fill_btn.setCheckable(True)
+        self.fill_btn.clicked.connect(lambda: self.activate_tool(self.fill_btn, self.editor.fill_switch))
         self.fill_btn.setFixedSize(40,40)
-        self.fill_btn.clicked.connect(self.editor.fill_switch)
         self.toolbarRight.addWidget(self.fill_btn)
+        self.tool_buttons.append(self.fill_btn)
 
     def setColor(self, color):
         self.editor.current_color = color
@@ -152,6 +160,18 @@ class MainWindow(QMainWindow):
 
         self.fill_btn.clicked.disconnect()
         self.fill_btn.clicked.connect(self.editor.fill_switch)
+
+    def activate_tool(self, button, action):
+        # Uncheck all buttons
+        for btn in self.tool_buttons:
+            if btn is not button:
+                btn.setChecked(False)
+
+        # Check the clicked button
+        button.setChecked(True)
+
+        # Perform the action associated with the button
+        action()
 
 # shows dialog for creating a new canvas
     def show_dialog(self):
