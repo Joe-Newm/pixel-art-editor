@@ -44,6 +44,7 @@ class MainWindow(QMainWindow):
         self.add_menu_buttons()
         self.add_print_button()
         self.add_fill_tool()
+        self.set_button_styles()
 
 
     def fill_white(self, image):
@@ -141,6 +142,22 @@ class MainWindow(QMainWindow):
         self.fill_btn.setFixedSize(40,40)
         self.toolbarRight.addWidget(self.fill_btn)
         self.tool_buttons.append(self.fill_btn)
+
+    def set_button_styles(self):
+        self.toolbarRight.setStyleSheet("""
+            
+            QPushButton {
+                background-color: #3c3e42;
+                border: 1px solid black;
+                padding: 5px;
+            }
+            QPushButton:checked {
+                background-color: #1a5feb;
+            }
+            * {
+            background-color: #222326;
+            }                            
+        """)
 
     def setColor(self, color):
         self.editor.current_color = color
