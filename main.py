@@ -44,6 +44,14 @@ class MainWindow(QMainWindow):
         self.add_print_button()
         self.add_fill_tool()
 
+
+    def fill_white(self, image):
+        for x in range(image.width()):
+            for y in range(image.height()):
+                if image.pixelColor(x, y).alpha() > 0:  # Keep transparency
+                    image.setPixelColor(x, y, QColor(255,255,255))
+        return QPixmap.fromImage(image)
+
         # add menu bar with file > new button
     def add_menu_buttons(self):
         self.menu = self.menuBar()
@@ -94,19 +102,34 @@ class MainWindow(QMainWindow):
         self.toolbarLeft.addWidget(self.print_btn)
 
     def add_brush_tool(self):
-        self.brush_btn = QPushButton("B")
+        pixmap = QPixmap("icons/brush.png")
+        image = pixmap.toImage()
+        fill_image = self.fill_white(image)
+        icon = QIcon(fill_image)
+        self.brush_btn = QPushButton()
+        self.brush_btn.setIcon(icon)
         self.brush_btn.setFixedSize(40,40)
         self.brush_btn.clicked.connect(self.editor.draw_switch)
         self.toolbarRight.addWidget(self.brush_btn)
 
     def add_eraser_tool(self):
-        self.eraser_btn = QPushButton("E")
+        pixmap = QPixmap("icons/eraser.png")
+        image = pixmap.toImage()
+        fill_image = self.fill_white(image)
+        icon = QIcon(fill_image)
+        self.eraser_btn = QPushButton()
+        self.eraser_btn.setIcon(icon)
         self.eraser_btn.setFixedSize(40,40)
         self.eraser_btn.clicked.connect(self.editor.eraser_switch)
         self.toolbarRight.addWidget(self.eraser_btn)
 
     def add_fill_tool(self):
-        self.fill_btn = QPushButton("F")
+        pixmap = QPixmap("icons/paint-bucket.png")
+        image = pixmap.toImage()
+        fill_image = self.fill_white(image)
+        icon = QIcon(fill_image)
+        self.fill_btn = QPushButton()
+        self.fill_btn.setIcon(icon)
         self.fill_btn.setFixedSize(40,40)
         self.fill_btn.clicked.connect(self.editor.fill_switch)
         self.toolbarRight.addWidget(self.fill_btn)
@@ -141,6 +164,8 @@ class MainWindow(QMainWindow):
             self.dialog_counter += 1
             if self.dialog_counter > 1:
                 self.update_buttons()
+
+    
 
 
         # change cursor icon

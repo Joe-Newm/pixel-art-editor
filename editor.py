@@ -79,7 +79,7 @@ class PixelArtEditor(QGraphicsView):
         size = 4
         pixmap = QPixmap(width, height)
         with QPainter(pixmap) as painter:
-            color1 = QColor(255, 255, 255)
+            color1 = QColor(240, 240, 240)
             color2 = QColor(200, 200, 200)
 
             for y in range(0, height, size):

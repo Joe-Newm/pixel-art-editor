@@ -26,3 +26,5 @@ class InputDialog(QDialog):
 
     def getInputs(self):
         return self.input1.text(), self.input2.text()
+    
+    print()
