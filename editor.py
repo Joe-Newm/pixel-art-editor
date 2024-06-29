@@ -19,9 +19,10 @@ class PixelArtEditor(QGraphicsView):
         self.image = QImage(width, height, QImage.Format_ARGB32)
         self.current_color = QColor(0, 0, 0)
         self.last_directory = ""
+        self.undo_stack = []
 
         # keep track of which tool is being used
-        self.states = ["draw_mode_on", "eraser_mode_on", "fill_mode_on"]
+        self.states = ["draw_mode_on", "eraser_mode_on", "fill_mode_on", "grab_mode_on"]
         self.state = self.states[0]
 
         # create checkerboard pattern pixmap
@@ -67,13 +68,31 @@ class PixelArtEditor(QGraphicsView):
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
+            if self.state == "grab_mode_on":
+                self.is_dragging = True
+                self.last_mouse_pos = event.pos()
+            else:
+                # Save the current state to the undo stack
+                self.undo_stack.append(self.image.copy())
+                self.is_drawing = True
                 self.setPixel(event)
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
         if event.buttons() & Qt.LeftButton:
+            if self.state == "grab_mode_on" and self.is_dragging:
+                delta = event.pos() - self.last_mouse_pos
+                self.last_mouse_pos = event.pos()
+                self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
+                self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
+            else:
                 self.setPixel(event)
         super().mouseMoveEvent(event)
+
+    def mouseReleaseEvent(self,event):
+        if event.button() == Qt.LeftButton and self.state == "grab_mode_on":
+            self.is_dragging = False
+        super().mouseReleaseEvent(event)
 
     def create_checkerboard_pattern(self, width, height):
         size = 4
@@ -94,6 +113,8 @@ class PixelArtEditor(QGraphicsView):
         pos = self.mapToScene(event.pos())
         x = int(pos.x())
         y = int(pos.y())
+
+        
 
         # brush tool
         if self.state == "draw_mode_on":
@@ -175,6 +196,9 @@ class PixelArtEditor(QGraphicsView):
 
     def fill_switch(self):
         self.state = self.states[2]
+    
+    def grab_switch(self):
+        self.state = self.states[3]
 
     # for printing on the receipt printer
     def print(self):
@@ -229,6 +253,19 @@ class PixelArtEditor(QGraphicsView):
             handle.releaseInterface(interface_number)
         else:
             print("No USB device found.")
+
+    def zoom_in(self):
+        zoom = 1.1
+        self.scale(zoom, zoom)
+    def zoom_out(self):
+        zoom = 1 / 1.1
+        self.scale(zoom, zoom)
+
+    def undo(self):
+        if self.undo_stack:
+            print("you pressed undo")
+            self.image = self.undo_stack.pop()
+            self.pixmap_item.setPixmap(QPixmap.fromImage(self.image))
 
     def event(self, event):
         if event.type() == QEvent.Gesture:

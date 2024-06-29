@@ -37,12 +37,14 @@ class MainWindow(QMainWindow):
         
         # add editor and then add buttons to both tool bars
         self.show_dialog()
+        self.add_grab_tool()
         self.add_brush_tool()
         self.add_eraser_tool()
         self.add_color_buttons()
         self.add_clear_button()
         self.add_menu_buttons()
         self.add_print_button()
+        self.add_zoom_button()
         self.add_fill_tool()
         self.set_toolbarRight_styles()
         self.set_toolbarLeft_styles()
@@ -68,7 +70,7 @@ class MainWindow(QMainWindow):
         self.export_action.triggered.connect(self.editor.open_save_dialog)
 
         self.edit_menu = self.menu.addMenu("&Edit")
-        self.edit_menu.addAction("Undo")
+        self.edit_menu.addAction("Undo").triggered.connect(self.editor.undo)
 
 
     def add_color_buttons(self):
@@ -104,6 +106,18 @@ class MainWindow(QMainWindow):
         self.print_btn = QPushButton("Print")
         self.print_btn.clicked.connect(self.editor.print)
         self.toolbarLeft.addWidget(self.print_btn)
+    def add_zoom_button(self):
+        text = QLabel("         Zoom:")
+        container = QWidget()
+        zoom_layout = QHBoxLayout(container)
+        self.zoom_out_btn = QPushButton("-")
+        self.zoom_in_btn = QPushButton("+")
+        self.zoom_in_btn.clicked.connect(self.editor.zoom_in)
+        self.zoom_out_btn.clicked.connect(self.editor.zoom_out)
+        zoom_layout.addWidget(self.zoom_out_btn)
+        zoom_layout.addWidget(self.zoom_in_btn)
+        self.toolbarLeft.addWidget(text)
+        self.toolbarLeft.addWidget(container)
 
     def add_brush_tool(self):
         pixmap = QPixmap("icons/brush.png")
@@ -145,6 +159,19 @@ class MainWindow(QMainWindow):
         self.toolbarRight.addWidget(self.fill_btn)
         self.tool_buttons.append(self.fill_btn)
 
+    def add_grab_tool(self):
+        pixmap = QPixmap("icons/grab.png")
+        image = pixmap.toImage()
+        fill_image = self.fill_white(image)
+        icon = QIcon(fill_image)
+        self.grab_btn = QPushButton()
+        self.grab_btn.setIcon(icon)
+        self.grab_btn.setCheckable(True)
+        self.grab_btn.clicked.connect(lambda:self.activate_tool(self.grab_btn, self.editor.grab_switch))
+        self.grab_btn.setFixedSize(40,40)
+        self.toolbarRight.addWidget(self.grab_btn)
+        self.tool_buttons.append(self.grab_btn)
+
     def set_toolbarRight_styles(self):
         self.toolbarRight.setStyleSheet("""
             
@@ -156,9 +183,10 @@ class MainWindow(QMainWindow):
             QPushButton:checked {
                 background-color: #1a5feb;
             }
-            * {
+            QToolBar {
             background-color: #222326;
             }                            
+            
         """)
 
     def set_toolbarLeft_styles(self):
@@ -179,8 +207,11 @@ class MainWindow(QMainWindow):
 
     def set_scrollarea_styles(self):
         self.scroll_area.setStyleSheet("""
-            * {
+            QScrollArea {
                 background-color: grey;
+            }
+            QScrollBar {
+                background-color: #222326;
             } """)
 
     def setColor(self, color):
