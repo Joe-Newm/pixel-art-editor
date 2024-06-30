@@ -277,13 +277,17 @@ class PixelArtEditor(QGraphicsView):
             scaled_image.save(buffer, "PNG")
             pil_image = Image.open(io.BytesIO(buffer.data()))
 
-            #Convert to grayscale, increase contrast, and sharpen
-            pil_image = pil_image.convert("L")  
-            pil_image = pil_image.filter(ImageFilter.SHARPEN)
-            pil_image = ImageEnhance.Contrast(pil_image).enhance(2.0)
+            # Convert to grayscale
+            pil_image = pil_image.convert("L")
 
-             # Convert to binary image with dithering
-            pil_image = pil_image.convert("1")
+            # Create a binary image
+            threshold = 128
+            binary_image = pil_image.point(lambda p: 255 if p > threshold else 0, mode='1')
+
+            # Make sure the background stays white
+            width, height = binary_image.size
+            white_background = Image.new("1", (width, height), 1)
+            white_background.paste(binary_image, (0, 0), binary_image)
             
             # Print the image
             dummy_printer.image(pil_image)
