@@ -264,7 +264,7 @@ class PixelArtEditor(QGraphicsView):
                 print(f"Could not claim interface {interface_number}: {e}")
                 return
 
-            # Generate commands
+            
             dummy_printer = Dummy()
 
             # Scale image to printer width
@@ -280,16 +280,15 @@ class PixelArtEditor(QGraphicsView):
             # Convert to grayscale
             pil_image = pil_image.convert("L")
 
-            # Apply simple threshold to convert to black and white
+            # convert to black and white
             threshold = 128
             binary_image = pil_image.point(lambda p: 255 if p > threshold else 0, mode='1')
 
-            # Ensure the image has the correct format and size for the printer
             binary_image = binary_image.resize((printer_width, int(binary_image.height * printer_width / binary_image.width)), Image.NEAREST)
 
             # Make sure the background stays white
             width, height = binary_image.size
-            white_background = Image.new("1", (width, height), 1)  # Create a white background
+            white_background = Image.new("1", (width, height), 1) 
             white_background.paste(binary_image, (0, 0), binary_image)
 
             # Print the image
@@ -301,7 +300,7 @@ class PixelArtEditor(QGraphicsView):
             escpos_data = dummy_printer.output
 
             # Perform transfer to endpoint
-            endpoint_address = 0x03  # Endpoint
+            endpoint_address = 0x03 
             handle.bulkWrite(endpoint_address, escpos_data)
             print("Printed successfully.")
             
