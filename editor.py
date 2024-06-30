@@ -1,7 +1,7 @@
 import sys
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
-from PySide6.QtCore import Qt, QEvent, QBuffer, QFileInfo
+from PySide6.QtCore import Qt, QEvent, QBuffer, QFileInfo, QPoint
 from PIL import Image, ImageFilter
 import usb1
 from escpos.printer import Dummy
@@ -14,7 +14,7 @@ class PixelArtEditor(QGraphicsView):
         self.height = height
         self.scene = QGraphicsScene()
         self.setScene(self.scene)
-        self.setSceneRect(-50, -50, width +100, height+100)
+        self.setSceneRect(-50, -50, width + 100, height + 100)
         self.drawn_pixels = set()
         self.image = QImage(width, height, QImage.Format_ARGB32)
         self.current_color = QColor(0, 0, 0)
@@ -38,10 +38,14 @@ class PixelArtEditor(QGraphicsView):
         # add scale
         self.setTransformationAnchor(QGraphicsView.NoAnchor)
         self.setResizeAnchor(QGraphicsView.NoAnchor)
-        self.scale(10,10)
+        self.scale(10, 10)
 
         self.grabGesture(Qt.PinchGesture)
         
+        self.is_drawing = False
+        self.is_dragging = False
+        self.last_mouse_pos = QPoint()
+
     def wheelEvent(self, event):
         if event.modifiers() == Qt.AltModifier:
             zoom_in_factor = 1.1
@@ -51,7 +55,7 @@ class PixelArtEditor(QGraphicsView):
             if delta_x > 0 or delta_y > 0:
                 self.scale(zoom_in_factor, zoom_in_factor)
             else:
-                self.scale(zoom_out_factor, zoom_out_factor)  
+                self.scale(zoom_out_factor, zoom_out_factor)
         else:
             super().wheelEvent(event)
 
@@ -60,6 +64,7 @@ class PixelArtEditor(QGraphicsView):
         if event.gesture(Qt.PinchGesture):
             self.pinchTriggered(event.gesture(Qt.PinchGesture))
         return super().event(event)
+
     # determines scale for zooming with pinch
     def pinchTriggered(self, gesture):
         if gesture.changeFlags() & QPinchGesture.ScaleFactorChanged:
@@ -75,6 +80,7 @@ class PixelArtEditor(QGraphicsView):
                 # Save the current state to the undo stack
                 self.undo_stack.append(self.image.copy())
                 self.is_drawing = True
+                self.last_mouse_pos = event.pos()
                 self.setPixel(event)
         super().mousePressEvent(event)
 
@@ -85,13 +91,17 @@ class PixelArtEditor(QGraphicsView):
                 self.last_mouse_pos = event.pos()
                 self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
                 self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
+            elif self.state == "draw_mode_on":
+                self.drawLine(self.last_mouse_pos, event.pos())
+                self.last_mouse_pos = event.pos()
             else:
                 self.setPixel(event)
         super().mouseMoveEvent(event)
 
-    def mouseReleaseEvent(self,event):
+    def mouseReleaseEvent(self, event):
         if event.button() == Qt.LeftButton and self.state == "grab_mode_on":
             self.is_dragging = False
+        self.is_drawing = False
         super().mouseReleaseEvent(event)
 
     def create_checkerboard_pattern(self, width, height):
@@ -114,8 +124,6 @@ class PixelArtEditor(QGraphicsView):
         x = int(pos.x())
         y = int(pos.y())
 
-        
-
         # brush tool
         if self.state == "draw_mode_on":
             self.image.setPixelColor(x, y, self.current_color)
@@ -123,16 +131,43 @@ class PixelArtEditor(QGraphicsView):
 
         # eraser tool
         elif self.state == "eraser_mode_on":
-            self.image.setPixelColor(x,y,QColor(0,0,0,0))
-            if (x,y) in self.drawn_pixels:
+            self.image.setPixelColor(x, y, QColor(0, 0, 0, 0))
+            if (x, y) in self.drawn_pixels:
                 self.drawn_pixels.remove((x, y))
 
         # fill tool
         elif self.state == "fill_mode_on":
-            self.flood_fill(x,y,self.current_color)
+            self.flood_fill(x, y, self.current_color)
 
         self.pixmap_item.setPixmap(QPixmap.fromImage(self.image))
 
+    def drawLine(self, start_pos, end_pos):
+        start_pos = self.mapToScene(start_pos)
+        end_pos = self.mapToScene(end_pos)
+
+        x1, y1 = int(start_pos.x()), int(start_pos.y())
+        x2, y2 = int(end_pos.x()), int(end_pos.y())
+
+        dx = abs(x2 - x1)
+        dy = abs(y2 - y1)
+        sx = 1 if x1 < x2 else -1
+        sy = 1 if y1 < y2 else -1
+        err = dx - dy
+
+        while True:
+            if 0 <= x1 < self.width and 0 <= y1 < self.height:
+                self.image.setPixelColor(x1, y1, self.current_color)
+            if x1 == x2 and y1 == y2:
+                break
+            e2 = err * 2
+            if e2 > -dy:
+                err -= dy
+                x1 += sx
+            if e2 < dx:
+                err += dx
+                y1 += sy
+
+        self.pixmap_item.setPixmap(QPixmap.fromImage(self.image))
 
     def flood_fill(self, x, y, new_color):
         target_color = self.image.pixelColor(x, y)
@@ -169,9 +204,6 @@ class PixelArtEditor(QGraphicsView):
             
             # Save image as JPEG
             white_background.save(file_path, 'JPEG')
-            
-
-        
 
     def clear_canvas(self):
         self.image = QImage(self.width, self.height, QImage.Format_ARGB32)
@@ -283,6 +315,13 @@ class PixelArtEditor(QGraphicsView):
         if event.type() == QEvent.Gesture:
             return self.gestureEvent(event)
         return super().event(event)
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    editor = PixelArtEditor(32, 32)
+    editor.show()
+    sys.exit(app.exec())
+
         
 
 
