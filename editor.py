@@ -2,7 +2,7 @@ import sys
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
 from PySide6.QtCore import Qt, QEvent, QBuffer, QFileInfo, QPoint
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageEnhance
 import usb1
 from escpos.printer import Dummy
 import io
@@ -277,8 +277,10 @@ class PixelArtEditor(QGraphicsView):
             scaled_image.save(buffer, "PNG")
             pil_image = Image.open(io.BytesIO(buffer.data()))
 
-            # Sharpen the image
+            #Convert to grayscale, increase contrast, and sharpen
+            pil_image = pil_image.convert("L")  
             pil_image = pil_image.filter(ImageFilter.SHARPEN)
+            pil_image = ImageEnhance.Contrast(pil_image).enhance(2.0)
             
             # Print the image
             dummy_printer.image(pil_image)
