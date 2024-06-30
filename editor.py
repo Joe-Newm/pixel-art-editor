@@ -60,7 +60,7 @@ class PixelArtEditor(QGraphicsView):
             super().wheelEvent(event)
 
     # adds pinch gesture for zooming in and out
-    def gestureEvent(self, event):
+    def gesture_event(self, event):
         if event.gesture(Qt.PinchGesture):
             self.pinchTriggered(event.gesture(Qt.PinchGesture))
         return super().event(event)
@@ -92,7 +92,7 @@ class PixelArtEditor(QGraphicsView):
                 self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
                 self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
             elif self.state == "draw_mode_on":
-                self.drawLine(self.last_mouse_pos, event.pos())
+                self.draw_line(self.last_mouse_pos, event.pos())
                 self.last_mouse_pos = event.pos()
             else:
                 self.setPixel(event)
@@ -141,7 +141,7 @@ class PixelArtEditor(QGraphicsView):
 
         self.pixmap_item.setPixmap(QPixmap.fromImage(self.image))
 
-    def drawLine(self, start_pos, end_pos):
+    def draw_line(self, start_pos, end_pos):
         start_pos = self.mapToScene(start_pos)
         end_pos = self.mapToScene(end_pos)
 
@@ -234,7 +234,7 @@ class PixelArtEditor(QGraphicsView):
 
     # for printing on the receipt printer
     def print(self):
-        # Vendor ID and Product ID from your lsusb output
+        # Vendor ID and Product ID from lsusb output
         VENDOR_ID = 0x0416
         PRODUCT_ID = 0x5011
 
@@ -256,7 +256,7 @@ class PixelArtEditor(QGraphicsView):
                     handle.detachKernelDriver(interface_number)
                     print("Kernel driver detached.")
             except usb1.USBErrorNotFound:
-                pass  # The driver was not active, which is fine
+                pass  
 
             try:
                 handle.claimInterface(interface_number)
@@ -313,7 +313,7 @@ class PixelArtEditor(QGraphicsView):
 
     def event(self, event):
         if event.type() == QEvent.Gesture:
-            return self.gestureEvent(event)
+            return self.gesture_event(event)
         return super().event(event)
 
 if __name__ == "__main__":
