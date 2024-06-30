@@ -267,11 +267,11 @@ class PixelArtEditor(QGraphicsView):
             # Generate commands
             dummy_printer = Dummy()
 
-            # Scale image
+            # Scale image to printer width
             printer_width = 576
             scaled_image = self.image.scaled(printer_width, self.image.height() * (printer_width / self.image.width()), Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
-            # Change QImage to PIL image
+            # Convert QImage to PIL image
             buffer = QBuffer()
             buffer.open(QBuffer.ReadWrite)
             scaled_image.save(buffer, "PNG")
@@ -280,17 +280,20 @@ class PixelArtEditor(QGraphicsView):
             # Convert to grayscale
             pil_image = pil_image.convert("L")
 
-            # Create a binary image
+            # Apply simple threshold to convert to black and white
             threshold = 128
             binary_image = pil_image.point(lambda p: 255 if p > threshold else 0, mode='1')
 
+            # Ensure the image has the correct format and size for the printer
+            binary_image = binary_image.resize((printer_width, int(binary_image.height * printer_width / binary_image.width)), Image.NEAREST)
+
             # Make sure the background stays white
             width, height = binary_image.size
-            white_background = Image.new("1", (width, height), 1)
+            white_background = Image.new("1", (width, height), 1)  # Create a white background
             white_background.paste(binary_image, (0, 0), binary_image)
-            
+
             # Print the image
-            dummy_printer.image(pil_image)
+            dummy_printer.image(white_background)
             dummy_printer.text("## Thanks for using Joseph's pixel editor. ##\n")
             dummy_printer.cut()
 
