@@ -281,6 +281,9 @@ class PixelArtEditor(QGraphicsView):
             pil_image = pil_image.convert("L")  
             pil_image = pil_image.filter(ImageFilter.SHARPEN)
             pil_image = ImageEnhance.Contrast(pil_image).enhance(2.0)
+
+             # Convert to binary image with dithering
+            pil_image = pil_image.convert("1")
             
             # Print the image
             dummy_printer.image(pil_image)
