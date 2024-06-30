@@ -269,7 +269,7 @@ class PixelArtEditor(QGraphicsView):
 
             # Scale image
             printer_width = 576
-            scaled_image = self.image.scaledToWidth(printer_width, Qt.SmoothTransformation)
+            scaled_image = self.image.scaled(printer_width, self.image.height() * (printer_width / self.image.width()), Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
             # Change QImage to PIL image
             buffer = QBuffer()
