@@ -196,23 +196,26 @@ class MainWindow(QMainWindow):
                 background-color: #3c3e42;
                 border: 1px solid black;
                 padding: 5px;
+                color: white;
+            }
+            QLabel {
+                color: white;
             }
             QPushButton:checked {
                 background-color: #1a5feb;
             }
             * {
             background-color: #222326;
-            }                            
+            }
+            QPushbutton:te
         """)
 
     def set_scrollarea_styles(self):
         self.scroll_area.setStyleSheet("""
-            QScrollArea {
-                background: grey;
+            * {
+                background-color: grey;
                 border: none;
             }
-            QScrollArea > QWidget > QWidget {
-                background: grey;
             QScrollBar {
                 background-color: #222326;
             } """)
