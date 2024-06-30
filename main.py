@@ -208,8 +208,11 @@ class MainWindow(QMainWindow):
     def set_scrollarea_styles(self):
         self.scroll_area.setStyleSheet("""
             QScrollArea {
-                background-color: grey;
+                background: grey;
+                border: none;
             }
+            QScrollArea > QWidget > QWidget {
+                background: grey;
             QScrollBar {
                 background-color: #222326;
             } """)
