@@ -217,24 +217,36 @@ class PixelArtEditor(QGraphicsView):
 
         if handle:
             # The interface number found in the lsusb output
-            interface_number = 0 
-            handle.claimInterface(interface_number)
-            
-            # generate commands
+            interface_number = 0
+            try:
+                # Detach the kernel driver if necessary
+                if handle.kernelDriverActive(interface_number):
+                    handle.detachKernelDriver(interface_number)
+                    print("Kernel driver detached.")
+            except usb1.USBErrorNotFound:
+                pass  # The driver was not active, which is fine
+
+            try:
+                handle.claimInterface(interface_number)
+            except usb1.USBErrorBusy as e:
+                print(f"Could not claim interface {interface_number}: {e}")
+                return
+
+            # Generate commands
             dummy_printer = Dummy()
 
-            #scale image
+            # Scale image
             printer_width = 576
             scaled_image = self.image.scaledToWidth(printer_width, Qt.SmoothTransformation)
 
-            # change qimage to PIL image
+            # Change QImage to PIL image
             buffer = QBuffer()
             buffer.open(QBuffer.ReadWrite)
             scaled_image.save(buffer, "PNG")
             pil_image = Image.open(io.BytesIO(buffer.data()))
 
-            # sharpen the image 
-            pil_image = pil_image.filter(ImageFilter.SHARPEN) 
+            # Sharpen the image
+            pil_image = pil_image.filter(ImageFilter.SHARPEN)
             
             # Print the image
             dummy_printer.image(pil_image)
