@@ -1,11 +1,11 @@
 Traceback (most recent call last):
-  File "/home/admin/Documents/csc projects/josephs-project/editor.py", line 214, in print
-    handle = device.open()
-  File "/home/admin/.local/lib/python3.9/site-packages/usb1/__init__.py", line 2055, in open
-    mayRaiseUSBError(libusb1.libusb_open(self.device_p, byref(handle)))
+  File "/home/admin/Documents/csc projects/josephs-project/editor.py", line 221, in print
+    handle.claimInterface(interface_number)
+  File "/home/admin/.local/lib/python3.9/site-packages/usb1/__init__.py", line 1146, in claimInterface
+    mayRaiseUSBError(
   File "/home/admin/.local/lib/python3.9/site-packages/usb1/__init__.py", line 127, in mayRaiseUSBError
     __raiseUSBError(value)
   File "/home/admin/.local/lib/python3.9/site-packages/usb1/__init__.py", line 119, in raiseUSBError
     raise __STATUS_TO_EXCEPTION_DICT.get(value, __USBError)(value)
-usb1.USBErrorAccess: LIBUSB_ERROR_ACCESS [-3]
+usb1.USBErrorBusy: LIBUSB_ERROR_BUSY [-6]
 
