@@ -268,13 +268,12 @@ class PixelArtEditor(QGraphicsView):
             dummy_printer = Dummy()
 
             # Scale image
-            printer_width = 576
-            scaled_image = self.image.scaled(printer_width, self.image.height() * (printer_width / self.image.width()), Qt.KeepAspectRatio, Qt.SmoothTransformation)
-
+            scale_factor = 20  # Adjust scale factor as needed
+            large_image = self.image.scaled(self.width * scale_factor, self.height * scale_factor, Qt.KeepAspectRatio, Qt.SmoothTransformation) 
             # Change QImage to PIL image
             buffer = QBuffer()
             buffer.open(QBuffer.ReadWrite)
-            scaled_image.save(buffer, "PNG")
+            large_image.save(buffer, "PNG")
             pil_image = Image.open(io.BytesIO(buffer.data()))
 
             #Convert to grayscale, increase contrast, and sharpen
