@@ -228,6 +228,9 @@ class MainWindow(QMainWindow):
         self.export_action.triggered.disconnect()
         self.export_action.triggered.connect(self.editor.open_save_dialog)
 
+        self.print_btn.clicked.disconnect()
+        self.print_btn.clicked.connect(self.editor.print)
+
         self.clear_btn.clicked.disconnect()
         self.clear_btn.clicked.connect(self.editor.clear_canvas)
         
