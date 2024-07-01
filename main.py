@@ -231,16 +231,16 @@ class MainWindow(QMainWindow):
         self.clear_btn.clicked.connect(self.editor.clear_canvas)
         
         self.brush_btn.clicked.disconnect()
-        self.brush_btn.clicked.connect(self.editor.draw_switch)
+        self.brush_btn.clicked.connect(lambda: self.activate_tool(self.brush_btn, self.editor.draw_switch))
 
         self.eraser_btn.clicked.disconnect()
-        self.eraser_btn.clicked.connect(self.editor.eraser_switch)
+        self.eraser_btn.clicked.connect(lambda: self.activate_tool(self.eraser_btn, self.editor.eraser_switch))
 
         self.fill_btn.clicked.disconnect()
-        self.fill_btn.clicked.connect(self.editor.fill_switch)
+        self.fill_btn.clicked.connect(lambda: self.activate_tool(self.fill_btn, self.editor.fill_switch))
 
         self.grab_btn.clicked.disconnect()
-        self.grab_btn.clicked.connect(self.editor.grab_switch)
+        self.grab_btn.clicked.connect(lambda: self.activate_tool(self.grab_btn, self.editor.grab_switch))
 
         self.zoom_in_btn.clicked.disconnect()
         self.zoom_in_btn.clicked.connect(self.editor.zoom_in)
