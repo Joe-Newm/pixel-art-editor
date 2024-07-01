@@ -63,6 +63,9 @@ class MainWindow(QMainWindow):
         self.menu = self.menuBar()
         self.file_menu = self.menu.addMenu("&File")
 
+        self.open_action = self.file_menu.addAction("Open")
+        self.open_action.triggered.connect(self.open_image)
+
         self.new_action = self.file_menu.addAction("New")
         self.new_action.triggered.connect(self.show_dialog)
 
@@ -75,7 +78,7 @@ class MainWindow(QMainWindow):
 
 
     def add_color_buttons(self):
-        colors = [QColor("black"),QColor("white"),QColor("gray"), QColor("red"), QColor("green"), QColor("blue"), QColor("yellow"), QColor("purple")]
+        colors = [QColor("black"),QColor("white"),QColor("gray"), QColor("red"), QColor("green"), QColor("blue"), QColor("yellow"), QColor("purple"), QColor("brown")]
         i = 0
         j = 0
         containerWidget = QWidget()
@@ -228,6 +231,9 @@ class MainWindow(QMainWindow):
         self.export_action.triggered.disconnect()
         self.export_action.triggered.connect(self.editor.open_save_dialog)
 
+        self.open_action.triggered.disconnect()
+        self.open_action.triggered.connect(self.open_image)
+
         self.print_btn.clicked.disconnect()
         self.print_btn.clicked.connect(self.editor.print)
 
@@ -273,6 +279,33 @@ class MainWindow(QMainWindow):
         if dialog.exec():
             input1, input2 = dialog.getInputs()
             self.editor = PixelArtEditor(int(input1), int(input2))
+            self.scroll_area.setWidget(self.editor)
+            self.setCentralWidget(self.scroll_area)
+            self.dialog_counter += 1
+            if self.dialog_counter > 1:
+                self.update_buttons()
+
+    def open_image(self):
+        # Open file dialog to select an image
+        file_dialog = QFileDialog(self)
+        file_path, _ = file_dialog.getOpenFileName(self, "Open Image", "", "Image Files (*.png *.jpg *.jpeg *.bmp *.gif);;All Files (*)")
+        
+        if file_path:
+            # Load the image
+            image = QImage(file_path)
+            
+            if image.isNull():
+                QMessageBox.information(self, "Image Viewer", "Cannot load %s." % file_path)
+                return
+            
+            # Create a new editor object with the size of the loaded image
+            self.editor = PixelArtEditor(image.width(), image.height())
+            
+            # Set the loaded image on the canvas
+            self.editor.image = image
+            self.editor.pixmap_item.setPixmap(QPixmap.fromImage(image))
+            
+            # Set the new editor in the scroll area
             self.scroll_area.setWidget(self.editor)
             self.setCentralWidget(self.scroll_area)
             self.dialog_counter += 1

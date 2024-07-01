@@ -216,9 +216,16 @@ class PixelArtEditor(QGraphicsView):
         if self.last_directory != "":
             file_dialog.setDirectory(self.last_directory)
         file_path, _ = file_dialog.getSaveFileName(self, "Save Image", "untitled", "PNG Files (*.png);;JPEG Files (*.jpg *.jpeg);;All Files (*)")
+        
         if file_path:
             self.last_directory = QFileInfo(file_path).path()
-            self.export_canvas(file_path)
+
+            # Prompt user for scale factor
+            scale_factor, ok = QInputDialog.getInt(self, "Scale Factor", "Enter the scale factor (e.g., 1 for normal size, 20 for large):", 1, 1, 100)
+            if ok:
+                self.export_canvas(file_path, scale_factor)
+            else:
+                QMessageBox.information(self, "Save Canceled", "The save operation was canceled.")
 
     def draw_switch(self):
         self.state = self.states[0]
