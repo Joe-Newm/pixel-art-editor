@@ -239,6 +239,15 @@ class MainWindow(QMainWindow):
         self.fill_btn.clicked.disconnect()
         self.fill_btn.clicked.connect(self.editor.fill_switch)
 
+        self.grab_btn.clicked.disconnect()
+        self.grab_btn.clicked.connect(self.editor.grab_switch)
+
+        self.zoom_in_btn.clicked.disconnect()
+        self.zoom_in_btn.clicked.connect(self.editor.zoom_in)
+
+        self.zoom_out_btn.clicked.disconnect()
+        self.zoom_out_btn.clicked.connect(self.editor.zoom_out)
+
     def activate_tool(self, button, action):
         # Uncheck all buttons
         for btn in self.tool_buttons:
