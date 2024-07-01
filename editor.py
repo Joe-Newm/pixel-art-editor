@@ -277,20 +277,6 @@ class PixelArtEditor(QGraphicsView):
             scaled_image.save(buffer, "PNG")
             pil_image = Image.open(io.BytesIO(buffer.data()))
 
-            # Convert to grayscale
-            pil_image = pil_image.convert("L")
-
-            # Enhance contrast to avoid large black areas
-            enhancer = ImageEnhance.Contrast(pil_image)
-            pil_image = enhancer.enhance(1.5)  # Adjust contrast enhancement as needed
-
-            # Apply dithering with a less aggressive threshold
-            threshold = 150  # Adjust threshold as needed
-            pil_image = pil_image.point(lambda p: 255 if p > threshold else 0, mode='1')
-
-            # Ensure the image has the correct format and size for the printer
-            pil_image = pil_image.resize((printer_width, int(pil_image.height * printer_width / pil_image.width)), Image.NEAREST)
-
             # Print the image
             dummy_printer.image(pil_image)
             dummy_printer.text("## Thanks for using Joseph's pixel editor. ##\n")
@@ -300,7 +286,7 @@ class PixelArtEditor(QGraphicsView):
             escpos_data = dummy_printer.output
 
             # Perform transfer to endpoint
-            endpoint_address = 0x03  # Endpoint
+            endpoint_address = 0x03  
             handle.bulkWrite(endpoint_address, escpos_data)
             print("Printed successfully.")
             
