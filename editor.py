@@ -278,7 +278,10 @@ class PixelArtEditor(QGraphicsView):
             pil_image = Image.open(io.BytesIO(buffer.data()))
 
             # Print the image
+            dummy_printer.text("#############################################\n")
+            dummy_printer.text("\n")
             dummy_printer.image(pil_image)
+            dummy_printer.text("\n")
             dummy_printer.text("## Thanks for using Joseph's pixel editor. ##\n")
             dummy_printer.cut()
 
