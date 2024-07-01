@@ -70,7 +70,8 @@ class MainWindow(QMainWindow):
         self.export_action.triggered.connect(self.editor.open_save_dialog)
 
         self.edit_menu = self.menu.addMenu("&Edit")
-        self.edit_menu.addAction("Undo").triggered.connect(self.editor.undo)
+        self.undo_btn = self.edit_menu.addAction("Undo")
+        self.undo_btn.triggered.connect(self.editor.undo)
 
 
     def add_color_buttons(self):
@@ -247,6 +248,9 @@ class MainWindow(QMainWindow):
 
         self.zoom_out_btn.clicked.disconnect()
         self.zoom_out_btn.clicked.connect(self.editor.zoom_out)
+
+        self.undo_btn.triggered.disconnect()
+        self.undo_btn.triggered.connect(self.editor.undo)
 
     def activate_tool(self, button, action):
         # Uncheck all buttons
