@@ -256,7 +256,7 @@ class PixelArtEditor(QGraphicsView):
                     handle.detachKernelDriver(interface_number)
                     print("Kernel driver detached.")
             except usb1.USBErrorNotFound:
-                pass  
+                pass
 
             try:
                 handle.claimInterface(interface_number)
@@ -264,7 +264,7 @@ class PixelArtEditor(QGraphicsView):
                 print(f"Could not claim interface {interface_number}: {e}")
                 return
 
-            
+            # Generate commands
             dummy_printer = Dummy()
 
             # Scale image to printer width
@@ -280,19 +280,14 @@ class PixelArtEditor(QGraphicsView):
             # Convert to grayscale
             pil_image = pil_image.convert("L")
 
-            # convert to black and white
-            threshold = 128
-            binary_image = pil_image.point(lambda p: 255 if p > threshold else 0, mode='1')
+            # Apply dithering to convert to black and white
+            dithered_image = pil_image.convert("1", dither=Image.FLOYDSTEINBERG)
 
-            binary_image = binary_image.resize((printer_width, int(binary_image.height * printer_width / binary_image.width)), Image.NEAREST)
-
-            # Make sure the background stays white
-            width, height = binary_image.size
-            white_background = Image.new("1", (width, height), 1) 
-            white_background.paste(binary_image, (0, 0), binary_image)
+            # Ensure the image has the correct format and size for the printer
+            dithered_image = dithered_image.resize((printer_width, int(dithered_image.height * printer_width / dithered_image.width)), Image.NEAREST)
 
             # Print the image
-            dummy_printer.image(white_background)
+            dummy_printer.image(dithered_image)
             dummy_printer.text("## Thanks for using Joseph's pixel editor. ##\n")
             dummy_printer.cut()
 
@@ -300,7 +295,7 @@ class PixelArtEditor(QGraphicsView):
             escpos_data = dummy_printer.output
 
             # Perform transfer to endpoint
-            endpoint_address = 0x03 
+            endpoint_address = 0x03  # Endpoint
             handle.bulkWrite(endpoint_address, escpos_data)
             print("Printed successfully.")
             
