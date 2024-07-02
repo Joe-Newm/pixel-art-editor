@@ -20,6 +20,7 @@ class PixelArtEditor(QGraphicsView):
         self.current_color = QColor(0, 0, 0)
         self.last_directory = ""
         self.undo_stack = []
+        self.brush_size = 1
 
         # keep track of which tool is being used
         self.states = ["draw_mode_on", "eraser_mode_on", "fill_mode_on", "grab_mode_on"]
@@ -118,6 +119,10 @@ class PixelArtEditor(QGraphicsView):
                     else:
                         painter.fillRect(x, y, size, size, color2)
         return pixmap
+    
+    def set_brush_size(self, size):
+        self.brush_size = size
+
 
     def setPixel(self, event):
         pos = self.mapToScene(event.pos())
@@ -126,7 +131,10 @@ class PixelArtEditor(QGraphicsView):
 
         # brush tool
         if self.state == "draw_mode_on":
-            self.image.setPixelColor(x, y, self.current_color)
+            painter = QPainter(self.image)
+            painter.setPen(QPen(self.current_color, self.brush_size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            painter.drawPoint(x, y)
+            painter.end()
             self.drawn_pixels.add((x, y))
 
         # eraser tool
@@ -154,9 +162,12 @@ class PixelArtEditor(QGraphicsView):
         sy = 1 if y1 < y2 else -1
         err = dx - dy
 
+        painter = QPainter(self.image)
+        painter.setPen(QPen(self.current_color, self.brush_size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+
         while True:
             if 0 <= x1 < self.width and 0 <= y1 < self.height:
-                self.image.setPixelColor(x1, y1, self.current_color)
+                painter.drawPoint(x1, y1)
             if x1 == x2 and y1 == y2:
                 break
             e2 = err * 2
@@ -166,7 +177,8 @@ class PixelArtEditor(QGraphicsView):
             if e2 < dx:
                 err += dx
                 y1 += sy
-
+        
+        painter.end()
         self.pixmap_item.setPixmap(QPixmap.fromImage(self.image))
 
     def flood_fill(self, x, y, new_color):

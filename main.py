@@ -41,6 +41,7 @@ class MainWindow(QMainWindow):
         self.add_brush_tool()
         self.add_eraser_tool()
         self.add_color_buttons()
+        self.add_brushsize_slider()
         self.add_clear_button()
         self.add_menu_buttons()
         self.add_print_button()
@@ -107,6 +108,17 @@ class MainWindow(QMainWindow):
         self.clear_btn = QPushButton("Clear")
         self.clear_btn.clicked.connect(self.editor.clear_canvas)
         self.toolbarLeft.addWidget(self.clear_btn)
+
+    def add_brushsize_slider(self):
+        self.brush_size = QSlider(Qt.Horizontal)
+        self.brush_size.setRange(1,50)
+        self.brush_size.setValue(1)
+        self.brush_size.valueChanged.connect(self.update_brush)
+        self.toolbarLeft.addWidget(self.brush_size)
+
+    def update_brush(self, value):
+        if hasattr(self, "editor"):
+            self.editor.set_brush_size(value)
 
     def add_print_button(self):
         self.print_btn = QPushButton("Print")
