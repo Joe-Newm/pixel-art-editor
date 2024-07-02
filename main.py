@@ -112,15 +112,16 @@ class MainWindow(QMainWindow):
         brush_label = QLabel("Brush size")
         brush_label.setAlignment(Qt.AlignCenter)
         self.toolbarLeft.addWidget(brush_label)
-        self.brush_size = QSlider(Qt.Horizontal)
-        self.brush_size.setRange(1,50)
+        self.brush_size = QSpinBox()
+        self.brush_size.setRange(1,20)
         self.brush_size.setValue(1)
-        self.brush_size.valueChanged.connect(self.update_brush)
+        # self.brush_size.setStyleSheet("QLineEdit { padding: 10px; }")
+        self.brush_size.textChanged.connect(self.update_brush)
         self.toolbarLeft.addWidget(self.brush_size)
 
     def update_brush(self, value):
         if hasattr(self, "editor"):
-            self.editor.set_brush_size(value)
+            self.editor.set_brush_size(int(value))
 
     def add_print_button(self):
         self.print_btn = QPushButton("Print")

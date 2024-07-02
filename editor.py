@@ -1,7 +1,7 @@
 import sys
 from PySide6.QtWidgets import *
 from PySide6.QtGui import *
-from PySide6.QtCore import Qt, QEvent, QBuffer, QFileInfo, QPoint
+from PySide6.QtCore import Qt, QEvent, QBuffer, QFileInfo, QPoint, QRectF
 from PIL import Image, ImageFilter, ImageEnhance
 import usb1
 from escpos.printer import Dummy
@@ -97,6 +97,8 @@ class PixelArtEditor(QGraphicsView):
                 self.last_mouse_pos = event.pos()
             else:
                 self.setPixel(event)
+            
+
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
@@ -336,11 +338,7 @@ class PixelArtEditor(QGraphicsView):
             return self.gesture_event(event)
         return super().event(event)
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    editor = PixelArtEditor(32, 32)
-    editor.show()
-    sys.exit(app.exec())
+
 
         
 
