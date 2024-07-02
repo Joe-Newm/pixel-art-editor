@@ -252,7 +252,7 @@ class PixelArtEditor(QGraphicsView):
         self.state = self.states[3]
 
     # for printing on the receipt printer
-    def print(self):
+    def print_pic(self,editor):
         # Vendor ID and Product ID from lsusb output
         VENDOR_ID = 0x0416
         PRODUCT_ID = 0x5011
@@ -288,7 +288,7 @@ class PixelArtEditor(QGraphicsView):
 
             # Scale image to printer width
             printer_width = 576
-            scaled_image = self.image.scaled(printer_width, self.image.height() * (printer_width / self.image.width()), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            scaled_image = editor.image.scaled(printer_width, editor.image.height() * (printer_width / editor.image.width()), Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
             # Convert QImage to PIL image
             buffer = QBuffer()

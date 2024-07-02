@@ -45,7 +45,6 @@ class MainWindow(QMainWindow):
         self.add_clear_button()
         self.add_menu_buttons()
         self.add_print_button()
-        self.add_scale_button()
         self.add_zoom_button()
         self.add_fill_tool()
         self.set_toolbarRight_styles()
@@ -110,6 +109,9 @@ class MainWindow(QMainWindow):
         self.toolbarLeft.addWidget(self.clear_btn)
 
     def add_brushsize_slider(self):
+        brush_label = QLabel("Brush size")
+        brush_label.setAlignment(Qt.AlignCenter)
+        self.toolbarLeft.addWidget(brush_label)
         self.brush_size = QSlider(Qt.Horizontal)
         self.brush_size.setRange(1,50)
         self.brush_size.setValue(1)
@@ -122,16 +124,35 @@ class MainWindow(QMainWindow):
 
     def add_print_button(self):
         self.print_btn = QPushButton("Print")
-        self.print_btn.clicked.connect(self.editor.print)
+        self.print_btn.clicked.connect(self.print_function)
         self.toolbarLeft.addWidget(self.print_btn)
 
-    def add_scale_button(self):
-        self.scale_btn = QPushButton("Scale x20")
-        self.scale_btn.clicked.connect(self.set_scale)
-        self.toolbarLeft.addWidget(self.scale_btn)
+    # function that checks how large image is so that it can be scaled up to print sharp on printer
+    def print_function(self):
+        if self.editor.image.width() < 200:
+            scale_factor = 20
+            scaled_image = self.editor.image.scaled(
+            self.editor.image.width() * scale_factor,
+            self.editor.image.height() * scale_factor,
+            Qt.KeepAspectRatio,
+            Qt.FastTransformation
+            )
+        
+            # Create a new editor object with the size of the scaled image
+            new_editor = PixelArtEditor(scaled_image.width(), scaled_image.height())
+            
+            # Set the scaled image on the new canvas
+            new_editor.image = scaled_image
+            new_editor.pixmap_item.setPixmap(QPixmap.fromImage(scaled_image))
+            self.editor.print_pic(new_editor)
+            del new_editor
+
+        else:
+            self.editor.print_pic(self.editor)
 
     def add_zoom_button(self):
-        text = QLabel("         Zoom:")
+        text = QLabel("Zoom:")
+        text.setAlignment(Qt.AlignCenter)
         container = QWidget()
         zoom_layout = QHBoxLayout(container)
         self.zoom_out_btn = QPushButton("-")
@@ -254,11 +275,8 @@ class MainWindow(QMainWindow):
         self.open_action.triggered.disconnect()
         self.open_action.triggered.connect(self.open_image)
 
-        self.scale_btn.clicked.disconnect()
-        self.scale_btn.clicked.connect(self.set_scale)
-
         self.print_btn.clicked.disconnect()
-        self.print_btn.clicked.connect(self.editor.print)
+        self.print_btn.clicked.connect(self.print_function)
 
         self.clear_btn.clicked.disconnect()
         self.clear_btn.clicked.connect(self.editor.clear_canvas)
@@ -283,6 +301,10 @@ class MainWindow(QMainWindow):
 
         self.undo_btn.triggered.disconnect()
         self.undo_btn.triggered.connect(self.editor.undo)
+
+        self.brush_size.valueChanged.disconnect()
+        self.brush_size.valueChanged.connect(self.update_brush)
+
 
     def activate_tool(self, button, action):
         # Uncheck all buttons
@@ -334,30 +356,6 @@ class MainWindow(QMainWindow):
             self.dialog_counter += 1
             if self.dialog_counter > 1:
                 self.update_buttons()
-
-    def set_scale(self):
-        # Scale the current image by a factor of 20
-        scale_factor = 20
-        scaled_image = self.editor.image.scaled(
-            self.editor.image.width() * scale_factor,
-            self.editor.image.height() * scale_factor,
-            Qt.KeepAspectRatio,
-            Qt.FastTransformation
-        )
-        
-        # Create a new editor object with the size of the scaled image
-        self.editor = PixelArtEditor(scaled_image.width(), scaled_image.height())
-        
-        # Set the scaled image on the new canvas
-        self.editor.image = scaled_image
-        self.editor.pixmap_item.setPixmap(QPixmap.fromImage(scaled_image))
-        
-        print("working")
-        # Set the new editor in the scroll area
-        self.scroll_area.setWidget(self.editor)
-        self.setCentralWidget(self.scroll_area)
-        self.update_buttons()
-    
 
 
         # change cursor icon
