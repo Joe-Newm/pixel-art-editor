@@ -115,7 +115,7 @@ class MainWindow(QMainWindow):
         self.brush_size = QSpinBox()
         self.brush_size.setRange(1,20)
         self.brush_size.setValue(1)
-        # self.brush_size.setStyleSheet("QLineEdit { padding: 10px; }")
+        self.brush_size.setStyleSheet("QSpinBox { color: white; }")
         self.brush_size.textChanged.connect(self.update_brush)
         self.toolbarLeft.addWidget(self.brush_size)
 
