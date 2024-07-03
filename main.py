@@ -115,7 +115,31 @@ class MainWindow(QMainWindow):
         self.brush_size = QSpinBox()
         self.brush_size.setRange(1,20)
         self.brush_size.setValue(1)
-        self.brush_size.setStyleSheet("QSpinBox { color: white; }")
+        self.brush_size.setStyleSheet("""
+    QSpinBox { 
+        color: white; 
+        padding: 20px;
+    } 
+    QSpinBox::up-button {
+        subcontrol-origin: border;
+        subcontrol-position: top right;
+        width: 30px;  
+        height: 30px; 
+    }
+    QSpinBox::up-arrow {
+        width: 20px;  
+        height: 20px;  
+    }
+    QSpinBox::down-button {
+        subcontrol-origin: border;
+        subcontrol-position: bottom right;
+        width: 30px;  
+        height: 30px;  
+    }
+    QSpinBox::down-arrow {
+        width: 20px;  
+        height: 20px;  
+    }""")
         self.brush_size.textChanged.connect(self.update_brush)
         self.toolbarLeft.addWidget(self.brush_size)
 
