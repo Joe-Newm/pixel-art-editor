@@ -92,12 +92,11 @@ class PixelArtEditor(QGraphicsView):
                 self.last_mouse_pos = event.pos()
                 self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
                 self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
-            elif self.state == "draw_mode_on":
-                self.draw_line(self.last_mouse_pos, event.pos())
+            elif self.state in ["draw_mode_on", "eraser_mode_on"]:
+                self.draw_line(self.last_mouse_pos, event.pos(), self.state == "eraser_mode_on")
                 self.last_mouse_pos = event.pos()
             else:
                 self.setPixel(event)
-            
 
         super().mouseMoveEvent(event)
 
@@ -131,27 +130,36 @@ class PixelArtEditor(QGraphicsView):
         x = int(pos.x())
         y = int(pos.y())
 
-        # brush tool
+        painter = QPainter(self.image)
+
         if self.state == "draw_mode_on":
-            painter = QPainter(self.image)
             painter.setPen(QPen(self.current_color, self.brush_size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
             painter.drawPoint(x, y)
-            painter.end()
-            self.drawn_pixels.add((x, y))
+            self.update_drawn_pixels(x, y, self.brush_size, add=True)
 
-        # eraser tool
         elif self.state == "eraser_mode_on":
-            self.image.setPixelColor(x, y, QColor(0, 0, 0, 0))
-            if (x, y) in self.drawn_pixels:
-                self.drawn_pixels.remove((x, y))
+            painter.setPen(QPen(Qt.transparent, self.brush_size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            painter.setCompositionMode(QPainter.CompositionMode_Clear)
+            painter.drawPoint(x, y)
+            self.update_drawn_pixels(x, y, self.brush_size, add=False)
 
-        # fill tool
         elif self.state == "fill_mode_on":
             self.flood_fill(x, y, self.current_color)
 
+        painter.end()
         self.pixmap_item.setPixmap(QPixmap.fromImage(self.image))
 
-    def draw_line(self, start_pos, end_pos):
+    def update_drawn_pixels(self, x, y, size, add=True):
+        half_size = size // 2
+        for i in range(x - half_size, x + half_size + 1):
+            for j in range(y - half_size, y + half_size + 1):
+                if 0 <= i < self.width and 0 <= j < self.height:
+                    if add:
+                        self.drawn_pixels.add((i, j))
+                    else:
+                        self.drawn_pixels.discard((i, j))
+
+    def draw_line(self, start_pos, end_pos, erasing=False):
         start_pos = self.mapToScene(start_pos)
         end_pos = self.mapToScene(end_pos)
 
@@ -165,11 +173,16 @@ class PixelArtEditor(QGraphicsView):
         err = dx - dy
 
         painter = QPainter(self.image)
-        painter.setPen(QPen(self.current_color, self.brush_size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+        if erasing:
+            painter.setPen(QPen(Qt.transparent, self.brush_size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+            painter.setCompositionMode(QPainter.CompositionMode_Clear)
+        else:
+            painter.setPen(QPen(self.current_color, self.brush_size, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
 
         while True:
             if 0 <= x1 < self.width and 0 <= y1 < self.height:
                 painter.drawPoint(x1, y1)
+                self.update_drawn_pixels(x1, y1, self.brush_size, add=not erasing)
             if x1 == x2 and y1 == y2:
                 break
             e2 = err * 2
@@ -179,7 +192,7 @@ class PixelArtEditor(QGraphicsView):
             if e2 < dx:
                 err += dx
                 y1 += sy
-        
+
         painter.end()
         self.pixmap_item.setPixmap(QPixmap.fromImage(self.image))
 

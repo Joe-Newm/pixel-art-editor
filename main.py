@@ -324,12 +324,15 @@ class MainWindow(QMainWindow):
         dialog = InputDialog()
         if dialog.exec():
             input1, input2 = dialog.getInputs()
+            if self.dialog_counter > 0:
+                prev_brush_size = self.editor.brush_size
             self.editor = PixelArtEditor(int(input1), int(input2))
             self.scroll_area.setWidget(self.editor)
             self.setCentralWidget(self.scroll_area)
-            self.dialog_counter += 1
-            if self.dialog_counter > 1:
+            if self.dialog_counter > 0:
                 self.update_buttons()
+                self.update_brush(int(prev_brush_size))
+            self.dialog_counter += 1
 
     def open_image(self):
         # Open file dialog to select an image
