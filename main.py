@@ -144,8 +144,7 @@ class MainWindow(QMainWindow):
         self.toolbarLeft.addWidget(self.brush_size)
 
     def update_brush(self, value):
-        if hasattr(self, "editor"):
-            self.editor.set_brush_size(int(value))
+        self.editor.set_brush_size(int(value))
 
     def add_print_button(self):
         self.print_btn = QPushButton("Print")
@@ -275,9 +274,8 @@ class MainWindow(QMainWindow):
                 background-color: #1a5feb;
             }
             * {
-            background-color: #222326;
+                background-color: #222326;
             }
-            QPushbutton:te
         """)
 
     def set_scrollarea_styles(self):
